@@ -2,7 +2,7 @@ import * as Layers from '../contexts/Layers';
 import * as ShaderManagerContext from '../contexts/ShaderManager';
 import * as WorkspaceContext from '../contexts/Workspace';
 import React, { useCallback, useContext } from 'react';
-import { Colors } from '../constants/colors';
+import { Colors } from '../constants/Colors';
 import { Contexts } from '../contexts/Contexts';
 import { SHADERMAN } from '../ShaderManager';
 import { registerMouseEvent } from '../utils/registerMouseEvent';
