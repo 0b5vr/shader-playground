@@ -84,6 +84,7 @@ export const Editor = ( { className }: EditorProps ): JSX.Element => {
         theme="monokai"
         width=""
         height=""
+        tabSize={ 2 }
         value={ contexts.state.layers.layers[ contexts.state.layers.selectedIndex || 0 ]?.code }
         onChange={ handleChange }
         commands={ commands }
