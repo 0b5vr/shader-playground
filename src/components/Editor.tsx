@@ -1,5 +1,5 @@
 import * as LayersContext from '../contexts/Layers';
-import React, { useContext, useRef } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import AceEditor from 'react-ace';
 import { Contexts } from '../contexts/Contexts';
 import { SHADERMAN } from '../ShaderManager';
@@ -28,6 +28,24 @@ export interface EditorProps {
 
 export const Editor = ( { className }: EditorProps ): JSX.Element => {
   const contexts = useContext( Contexts.Store );
+  const [ hasEdited, setHasEdited ] = useState( false );
+
+  useEffect(
+    () => {
+      if ( hasEdited ) {
+        const unloadHandler = ( event: BeforeUnloadEvent ): void => {
+          event.preventDefault();
+          event.returnValue = 'Are you sure?';
+        };
+        window.addEventListener( 'beforeunload', unloadHandler );
+
+        return () => {
+          window.removeEventListener( 'beforeunload', unloadHandler );
+        };
+      }
+    },
+    [ hasEdited ]
+  );
 
   const handleExec = useRef<() => void>();
   handleExec.current = (): void => {
@@ -43,6 +61,7 @@ export const Editor = ( { className }: EditorProps ): JSX.Element => {
   };
 
   const handleChange = ( newValue: string ): void => {
+    setHasEdited( true );
     contexts.dispatch( {
       type: LayersContext.ActionType.EditCode,
       index: contexts.state.layers.selectedIndex!,
