@@ -1,4 +1,5 @@
 import { GLCat, GLCatBuffer } from '@fms-cat/glcat-ts';
+import JSZip from 'jszip';
 import { ShaderManagerLayer } from './ShaderManagerLayer';
 
 export class ShaderManager {
@@ -51,6 +52,11 @@ export class ShaderManager {
   private _beginDate = 0.001 * Date.now();
   private _handleResize?: () => void;
 
+  private _isRecording = false;
+  public get isRecording(): boolean {
+    return this._isRecording;
+  }
+
   public get isReady(): boolean {
     return !!this._canvas;
   }
@@ -81,14 +87,70 @@ export class ShaderManager {
     return layer;
   }
 
-  public render(): void {
-    const now = 0.001 * Date.now();
+  public toBlob(): Promise<Blob> {
+    if ( !this._canvas ) {
+      throw new Error( 'Canvas is not attached' );
+    }
+
+    return new Promise( ( resolve, reject ) => {
+      this._canvas!.toBlob( ( blob ) => {
+        if ( blob == null ) {
+          reject( new Error( 'Failed to get a blob; The result of canvas.toBlob() was null.' ) );
+        } else {
+          resolve( blob );
+        }
+      } );
+    } );
+  }
+
+  /**
+   * Return a zip as a blob.
+   */
+  public async record( {
+    frames = 60,
+    fps = 60
+  } = {} ): Promise<Blob> {
+    this._isRecording = true;
+
+    const zip = new JSZip();
+
+    const deltaTime = 1.0 / fps;
+    for ( let iFrame = 0; iFrame < frames; iFrame ++ ) {
+      const time = iFrame * deltaTime;
+      this.render( { time, deltaTime } );
+      const blob = await this.toBlob();
+      const filename = String( iFrame ).padStart( 5, '0' ) + '.png';
+      zip.file( filename, blob );
+    }
+
+    const blob = zip.generateAsync( { type: 'blob' } );
+
+    this._isRecording = false;
+
+    return blob;
+  }
+
+  public render( {
+    time = undefined as ( number | undefined ),
+    deltaTime = undefined as ( number | undefined )
+  } = {} ): void {
     const prevTime = this._time;
-    this._time = now - this._beginDate;
-    this._deltaTime = this._time - prevTime;
-    if ( this._timeMod < this._time ) {
-      this._time -= this._timeMod;
-      this._beginDate += this._timeMod;
+
+    if ( time != null ) {
+      this._time = time;
+    } else {
+      const now = 0.001 * Date.now();
+      this._time = now - this._beginDate;
+      if ( this._timeMod < this._time ) {
+        this._time -= this._timeMod;
+        this._beginDate += this._timeMod;
+      }
+    }
+
+    if ( deltaTime != null ) {
+      this._deltaTime = deltaTime;
+    } else {
+      this._deltaTime = this._time - prevTime;
     }
 
     const canvas = this._canvas;
@@ -107,6 +169,8 @@ export class ShaderManager {
         layer.render();
       }
     } );
+
+    gl.flush();
   }
 }
 
@@ -115,7 +179,7 @@ export const SHADERMAN = new ShaderManager();
 function update(): void {
   requestAnimationFrame( update );
 
-  if ( SHADERMAN.isReady ) {
+  if ( SHADERMAN.isReady && !SHADERMAN.isRecording ) {
     SHADERMAN.render();
   }
 }

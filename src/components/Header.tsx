@@ -1,13 +1,22 @@
 import * as ShaderManagerContext from '../contexts/ShaderManager';
-import React, { useContext } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import { Colors } from '../constants/Colors';
 import { Contexts } from '../contexts/Contexts';
 import { Metrics } from '../constants/Metrics';
 import { SHADERMAN } from '../ShaderManager';
+import { downloadBlob } from '../utils/downloadBlob';
 import styled from 'styled-components';
 
 // == styles =======================================================================================
-const ResoInput = styled.input`
+const VL = styled.div`
+  height: 24px;
+  width: 2px;
+  margin: 0 1em;
+  background: ${ Colors.fore };
+  opacity: 0.2;
+`;
+
+const Input = styled.input`
   display: block;
   width: 3rem;
   height: 0.8rem;
@@ -28,16 +37,32 @@ const ResoInput = styled.input`
   -moz-appearance:textfield;
 `;
 
-const ResoInputLabel = styled.div`
+const InputLabel = styled.div`
   margin-right: 0.5em;
 
-  ${ ResoInput } + & {
+  ${ Input } + & {
     margin-left: 1em;
+  }
+`;
+
+const ButtonRecord = styled.div<{ isRecording: boolean }>`
+  margin-left: 16px;
+  padding: 0.1rem 0.4rem;
+  width: 4em;
+  text-align: center;
+  color: ${ ( { isRecording } ) => isRecording ? Colors.red : Colors.fore };
+  background: ${ Colors.back2 };
+  border-radius: calc( 0.5 * ${ Metrics.genericBorderRadius } );
+  cursor: pointer;
+
+  &:active {
+    opacity: 0.5;
   }
 `;
 
 const Container = styled.div`
   display: flex;
+  align-items: center;
   margin: 0;
   padding: 0.5rem;
   width: calc( 100% - 1rem );
@@ -55,6 +80,10 @@ export interface HeaderProps {
 
 export const Header = ( { className }: HeaderProps ): JSX.Element => {
   const contexts = useContext( Contexts.Store );
+  const [ fps, setFps ] = useState( 60 );
+  const [ frames, setFrames ] = useState( 60 );
+
+  const isRecording = contexts.state.shaderManager.isRecording;
 
   const handleChangeWidth = ( event: React.ChangeEvent<HTMLInputElement> ): void => {
     const value = event.target.value as any as number;
@@ -80,21 +109,78 @@ export const Header = ( { className }: HeaderProps ): JSX.Element => {
     }
   };
 
+  const handleChangeFrames = useCallback(
+    ( event: React.ChangeEvent<HTMLInputElement> ): void => {
+      const value = event.target.value as any as number;
+      if ( 0 < value ) {
+        setFrames( Math.floor( value ) );
+      }
+    },
+    []
+  );
+
+  const handleChangeFPS = useCallback(
+    ( event: React.ChangeEvent<HTMLInputElement> ): void => {
+      const value = event.target.value as any as number;
+      if ( 0 < value ) {
+        setFps( Math.floor( value ) );
+      }
+    },
+    []
+  );
+
+  const handleClickButtonRecord = useCallback(
+    async (): Promise<void> => {
+      if ( contexts.state.shaderManager.isRecording ) {
+        return;
+      }
+
+      contexts.dispatch( {
+        type: ShaderManagerContext.ActionType.StartRecording
+      } );
+      const blob = await SHADERMAN.record( { fps, frames } );
+      downloadBlob( blob, Date.now() + '.zip' );
+      contexts.dispatch( {
+        type: ShaderManagerContext.ActionType.EndRecording
+      } );
+    },
+    [ isRecording, fps, frames ]
+  );
+
   return <>
     <Root className={ className }>
       <Container>
-        <ResoInputLabel>W</ResoInputLabel>
-        <ResoInput
+        <InputLabel>W</InputLabel>
+        <Input
           type="number"
           value={ contexts.state.shaderManager.width }
           onChange={ handleChangeWidth }
         />
-        <ResoInputLabel>H</ResoInputLabel>
-        <ResoInput
+        <InputLabel>H</InputLabel>
+        <Input
           type="number"
           value={ contexts.state.shaderManager.height }
           onChange={ handleChangeHeight }
         />
+        <VL />
+        <InputLabel>Frames</InputLabel>
+        <Input
+          type="number"
+          value={ frames }
+          onChange={ handleChangeFrames }
+        />
+        <InputLabel>FPS</InputLabel>
+        <Input
+          type="number"
+          value={ fps }
+          onChange={ handleChangeFPS }
+        />
+        <ButtonRecord
+          isRecording={ isRecording }
+          onClick={ handleClickButtonRecord }
+        >
+          { isRecording ? 'Wait' : 'Record' }
+        </ButtonRecord>
       </Container>
     </Root>
   </>;
