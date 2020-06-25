@@ -63,6 +63,12 @@ export class ShaderManagerLayer {
     image.src = url;
   }
 
+  public deleteTexture( index: number ): void {
+    const texture = this._textures[ index ];
+    texture.texture.dispose();
+    this._textures.splice( index, 1 );
+  }
+
   public compileShader( code: string ): void {
     const glCat = this._manager.glCat;
 

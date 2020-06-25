@@ -1,6 +1,9 @@
+import * as LayersContext from '../contexts/Layers';
+import React, { useCallback, useContext } from 'react';
 import { Colors } from '../constants/Colors';
+import { Contexts } from '../contexts/Contexts';
 import { Metrics } from '../constants/Metrics';
-import React from 'react';
+import { SHADERMAN } from '../ShaderManager';
 import styled from 'styled-components';
 
 // == styles =======================================================================================
@@ -14,6 +17,14 @@ const Name = styled.div`
   font-size: 0.6rem;
   text-align: center;
   background-color: ${ Colors.fadeBlack8 };
+`;
+
+const CloseButton = styled.div`
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  font-size: 12px;
+  cursor: pointer;
 `;
 
 const Root = styled.div`
@@ -32,17 +43,47 @@ const Root = styled.div`
 
 // == element ======================================================================================
 export interface TextureProps {
+  textureIndex: number;
+  layerIndex: number;
   src: string;
   name: string;
   className?: string;
 }
 
-export const Texture = ( { className, name, src }: TextureProps ): JSX.Element => <>
-  <Root className={ className }
-    style={ {
-      backgroundImage: `url(${ src })`
-    } }
-  >
-    <Name>{ name }</Name>
-  </Root>
-</>;
+export const Texture = ( {
+  className,
+  layerIndex,
+  textureIndex,
+  name,
+  src,
+}: TextureProps ): JSX.Element => {
+  const contexts = useContext( Contexts.Store );
+
+  const handleClickDelete = useCallback(
+    () => {
+      const layer = SHADERMAN.layers[ layerIndex ];
+      layer.deleteTexture( textureIndex );
+      contexts.dispatch( {
+        type: LayersContext.ActionType.DeleteTexture,
+        layerIndex,
+        textureIndex,
+      } );
+    },
+    [ layerIndex, textureIndex ]
+  );
+
+  return <>
+    <Root className={ className }
+      style={ {
+        backgroundImage: `url(${ src })`
+      } }
+    >
+      <Name>{ name }</Name>
+      <CloseButton
+        onClick={ handleClickDelete }
+      >
+        ❌
+      </CloseButton>
+    </Root>
+  </>;
+};

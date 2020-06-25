@@ -63,8 +63,8 @@ export const Textures = ( { className }: TexturesProps ): JSX.Element => {
     }
   };
 
-  const index = contexts.state.layers.selectedIndex!;
-  const layer = contexts.state.layers.layers[ index ];
+  const layerIndex = contexts.state.layers.selectedIndex!;
+  const layer = contexts.state.layers.layers[ layerIndex ];
 
   return <>
     <Root className={ className }
@@ -72,9 +72,11 @@ export const Textures = ( { className }: TexturesProps ): JSX.Element => {
       onDrop={ handleDrop }
     >
       <TexturesContainer>
-        { layer?.textures?.map( ( texture, index ) => <StyledTexture
-          key={ index }
-          name={ 'sampler' + index }
+        { layer?.textures?.map( ( texture, iTexture ) => <StyledTexture
+          key={ iTexture }
+          layerIndex={ layerIndex }
+          textureIndex={ iTexture }
+          name={ 'sampler' + iTexture }
           src={ texture.url }
         /> ) }
       </TexturesContainer>

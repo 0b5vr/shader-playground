@@ -21,7 +21,8 @@ export enum ActionType {
   SelectLayer = 'Layers/SelectLayer',
   AddLayer = 'Layers/AddLayer',
   EditCode = 'Layers/EditCode',
-  AddTexture = 'Layers/AddTexture'
+  AddTexture = 'Layers/AddTexture',
+  DeleteTexture = 'Layers/DeleteTexture',
 }
 
 interface Action {
@@ -48,6 +49,8 @@ export function reducer(
       newState.layers[ action.index ].textures.push( {
         url: action.url
       } );
+    } else if ( action.type === ActionType.DeleteTexture ) {
+      newState.layers[ action.layerIndex ].textures.splice( action.textureIndex, 1 );
     }
   } );
 }
