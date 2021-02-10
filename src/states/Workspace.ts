@@ -1,3 +1,4 @@
+import { Reducer } from 'redux';
 import { produce } from 'immer';
 
 // == state ========================================================================================
@@ -18,28 +19,24 @@ export const initialState: Readonly<State> = {
 };
 
 // == action =======================================================================================
-export enum ActionType {
-  MoveView = 'Workspace/MoveView',
-  ZoomView = 'Workspace/ZoomView'
-}
-
-interface Action {
-  type: ActionType;
-  [ key: string ]: any;
-}
+export type Action = {
+  type: 'Workspace/MoveView';
+  x: number;
+  y: number;
+} | {
+  type: 'Workspace/ZoomView';
+  zoom: number;
+};
 
 // == reducer ======================================================================================
-export function reducer(
-  state: State,
-  action: Action
-): State {
+export const reducer: Reducer<State, Action> = ( state = initialState, action ) => {
   return produce( state, ( newState: State ) => {
-    if ( action.type === ActionType.MoveView ) {
+    if ( action.type === 'Workspace/MoveView' ) {
       newState.view.x += action.x;
       newState.view.y += action.y;
-    } else if ( action.type === ActionType.ZoomView ) {
+    } else if ( action.type === 'Workspace/ZoomView' ) {
       const z = Math.log( newState.view.zoom ) + action.zoom;
       newState.view.zoom = Math.exp( z );
     }
   } );
-}
+};

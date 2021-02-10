@@ -1,10 +1,9 @@
-import * as LayersContext from '../contexts/Layers';
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback } from 'react';
 import { Colors } from '../constants/Colors';
-import { Contexts } from '../contexts/Contexts';
 import { Metrics } from '../constants/Metrics';
 import { SHADERMAN } from '../ShaderManager';
 import styled from 'styled-components';
+import { useDispatch } from '../states/store';
 
 // == styles =======================================================================================
 const Name = styled.div`
@@ -43,7 +42,6 @@ const Root = styled.div`
 
 // == element ======================================================================================
 export interface TextureProps {
-  textureIndex: number;
   layerIndex: number;
   src: string;
   name: string;
@@ -53,23 +51,22 @@ export interface TextureProps {
 export const Texture = ( {
   className,
   layerIndex,
-  textureIndex,
   name,
   src,
 }: TextureProps ): JSX.Element => {
-  const contexts = useContext( Contexts.Store );
+  const dispatch = useDispatch();
 
   const handleClickDelete = useCallback(
     () => {
       const layer = SHADERMAN.layers[ layerIndex ];
-      layer.deleteTexture( textureIndex );
-      contexts.dispatch( {
-        type: LayersContext.ActionType.DeleteTexture,
+      layer.deleteTexture( name );
+      dispatch( {
+        type: 'ShaderManager/DeleteLayerTexture',
         layerIndex,
-        textureIndex,
+        name,
       } );
     },
-    [ layerIndex, textureIndex ]
+    [ layerIndex, name ]
   );
 
   return <>

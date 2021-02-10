@@ -1,11 +1,22 @@
-import * as ShaderManagerContext from '../contexts/ShaderManager';
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useCallback, useState } from 'react';
+import { useDispatch, useSelector } from '../states/store';
 import { Colors } from '../constants/Colors';
-import { Contexts } from '../contexts/Contexts';
 import { Metrics } from '../constants/Metrics';
 import { SHADERMAN } from '../ShaderManager';
+import { ShaderManagerPreset } from '../ShaderManagerPreset';
 import { downloadBlob } from '../utils/downloadBlob';
+import { presets } from '../presets';
 import styled from 'styled-components';
+
+// == utils ========================================================================================
+async function importPreset( name: string ): Promise<ShaderManagerPreset> {
+  const preset = presets[ name ];
+  if ( !preset ) {
+    throw new Error( 'Invalid preset name' );
+  }
+
+  return preset;
+}
 
 // == styles =======================================================================================
 const VL = styled.div`
@@ -60,6 +71,9 @@ const ButtonRecord = styled.div<{ isRecording: boolean }>`
   }
 `;
 
+const SelectPresets = styled.select`
+`;
+
 const Container = styled.div`
   display: flex;
   align-items: center;
@@ -79,20 +93,24 @@ export interface HeaderProps {
 }
 
 export const Header = ( { className }: HeaderProps ): JSX.Element => {
-  const contexts = useContext( Contexts.Store );
+  const { isRecording, width, height } = useSelector( ( state ) => ( {
+    isRecording: state.shaderManager.isRecording,
+    width: state.shaderManager.width,
+    height: state.shaderManager.height,
+  } ) );
+  const dispatch = useDispatch();
+
   const [ fps, setFps ] = useState( 60 );
   const [ frames, setFrames ] = useState( 60 );
-
-  const isRecording = contexts.state.shaderManager.isRecording;
 
   const handleChangeWidth = ( event: React.ChangeEvent<HTMLInputElement> ): void => {
     const value = event.target.value as any as number;
     if ( 0 < value ) {
       SHADERMAN.width = value;
-      contexts.dispatch( {
-        type: ShaderManagerContext.ActionType.ChangeResolution,
+      dispatch( {
+        type: 'ShaderManager/ChangeResolution',
         width: SHADERMAN.width,
-        height: SHADERMAN.height
+        height: SHADERMAN.height,
       } );
     }
   };
@@ -101,10 +119,10 @@ export const Header = ( { className }: HeaderProps ): JSX.Element => {
     const value = event.target.value as any as number;
     if ( 0 < value ) {
       SHADERMAN.height = value;
-      contexts.dispatch( {
-        type: ShaderManagerContext.ActionType.ChangeResolution,
+      dispatch( {
+        type: 'ShaderManager/ChangeResolution',
         width: SHADERMAN.width,
-        height: SHADERMAN.height
+        height: SHADERMAN.height,
       } );
     }
   };
@@ -131,20 +149,29 @@ export const Header = ( { className }: HeaderProps ): JSX.Element => {
 
   const handleClickButtonRecord = useCallback(
     async (): Promise<void> => {
-      if ( contexts.state.shaderManager.isRecording ) {
-        return;
-      }
+      if ( isRecording ) { return; }
 
-      contexts.dispatch( {
-        type: ShaderManagerContext.ActionType.StartRecording
+      dispatch( {
+        type: 'ShaderManager/StartRecording',
       } );
       const blob = await SHADERMAN.record( { fps, frames } );
       downloadBlob( blob, Date.now() + '.zip' );
-      contexts.dispatch( {
-        type: ShaderManagerContext.ActionType.EndRecording
+      dispatch( {
+        type: 'ShaderManager/EndRecording',
       } );
     },
     [ isRecording, fps, frames ]
+  );
+
+  const handleChangePresets = useCallback(
+    async ( event: React.ChangeEvent<HTMLSelectElement> ): Promise<void> => {
+      const value = event.target.value;
+      if ( value != null ) {
+        const preset = await importPreset( value );
+        SHADERMAN.loadPreset( preset );
+      }
+    },
+    []
   );
 
   return <>
@@ -153,13 +180,13 @@ export const Header = ( { className }: HeaderProps ): JSX.Element => {
         <InputLabel>W</InputLabel>
         <Input
           type="number"
-          value={ contexts.state.shaderManager.width }
+          value={ width }
           onChange={ handleChangeWidth }
         />
         <InputLabel>H</InputLabel>
         <Input
           type="number"
-          value={ contexts.state.shaderManager.height }
+          value={ height }
           onChange={ handleChangeHeight }
         />
         <VL />
@@ -181,6 +208,20 @@ export const Header = ( { className }: HeaderProps ): JSX.Element => {
         >
           { isRecording ? 'Wait' : 'Record' }
         </ButtonRecord>
+        <VL />
+        <SelectPresets
+          onChange={ handleChangePresets }
+        >
+          <option>Presets</option>
+          <option>========</option>
+          { Array.from( Object.keys( presets ) ).map( ( key ) => (
+            <option key={ key }
+              value={ key }
+            >
+              { key }
+            </option>
+          ) ) }
+        </SelectPresets>
       </Container>
     </Root>
   </>;

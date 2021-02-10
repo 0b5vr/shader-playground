@@ -1,10 +1,13 @@
+import { Action, State } from '../states/store';
 import styled, { createGlobalStyle } from 'styled-components';
 import { Colors } from '../constants/Colors';
-import { Contexts } from '../contexts/Contexts';
 import { Editor } from './Editor';
 import { Header } from './Header';
 import { Metrics } from '../constants/Metrics';
+import { Provider } from 'react-redux';
 import React from 'react';
+import { ShaderManagerStateListener } from './ShaderManagerStateListener';
+import { Store } from 'redux';
 import { Textures } from './Textures';
 import { Workspace } from './Workspace';
 
@@ -70,6 +73,7 @@ const Root = styled.div`
 const OutOfContextApp = (): JSX.Element => {
   return <>
     <Root>
+      <ShaderManagerStateListener />
       <StyledWorkspace />
       <StyledEditor />
       <StyledTextures />
@@ -78,9 +82,11 @@ const OutOfContextApp = (): JSX.Element => {
   </>;
 };
 
-export const App = (): JSX.Element => <>
+export const App = ( { store }: {
+  store: Store<State, Action>;
+} ): JSX.Element => <>
   <GlobalStyle />
-  <Contexts.Provider>
+  <Provider store={ store }>
     <OutOfContextApp />
-  </Contexts.Provider>
+  </Provider>
 </>;

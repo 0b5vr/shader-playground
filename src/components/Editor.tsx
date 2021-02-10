@@ -1,7 +1,6 @@
-import * as LayersContext from '../contexts/Layers';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useDispatch, useSelector } from '../states/store';
 import AceEditor from 'react-ace';
-import { Contexts } from '../contexts/Contexts';
 import { SHADERMAN } from '../ShaderManager';
 import styled from 'styled-components';
 
@@ -27,7 +26,17 @@ export interface EditorProps {
 }
 
 export const Editor = ( { className }: EditorProps ): JSX.Element => {
-  const contexts = useContext( Contexts.Store );
+  const { layerIndex, code } = useSelector( ( state ) => {
+    const layerIndex = state.shaderManager.selectedLayerIndex;
+    const layer = ( layerIndex != null )
+      ? state.shaderManager.layers[ layerIndex ]
+      : null;
+    const code = layer?.code;
+
+    return { layerIndex, code };
+  } );
+  const dispatch = useDispatch();
+
   const [ hasEdited, setHasEdited ] = useState( false );
 
   useEffect(
@@ -49,23 +58,25 @@ export const Editor = ( { className }: EditorProps ): JSX.Element => {
 
   const handleExec = useRef<() => void>();
   handleExec.current = (): void => {
-    const index = contexts.state.layers.selectedIndex!;
-    const code = contexts.state.layers.layers[ index ].code;
-    const layer = SHADERMAN.layers[ index ];
+    const actualLayer = ( layerIndex != null ) ? SHADERMAN.layers[ layerIndex ] : null;
+    if ( !actualLayer || code == null ) { return; }
 
     try {
-      layer!.compileShader( code );
+      actualLayer.compileShader( code );
     } catch ( e ) {
       console.error( e ); // TODO: more proper error output
     }
   };
 
   const handleChange = ( newValue: string ): void => {
+    if ( layerIndex == null ) { return; }
+
     setHasEdited( true );
-    contexts.dispatch( {
-      type: LayersContext.ActionType.EditCode,
-      index: contexts.state.layers.selectedIndex!,
-      code: newValue
+    dispatch( {
+      type: 'ShaderManager/ChangeLayerCode',
+      layerIndex,
+      code: newValue,
+      markDirty: true,
     } );
   };
 
@@ -85,7 +96,7 @@ export const Editor = ( { className }: EditorProps ): JSX.Element => {
         width=""
         height=""
         tabSize={ 2 }
-        value={ contexts.state.layers.layers[ contexts.state.layers.selectedIndex || 0 ]?.code }
+        value={ code }
         onChange={ handleChange }
         commands={ commands }
       />

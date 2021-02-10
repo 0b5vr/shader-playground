@@ -1,9 +1,6 @@
-import * as Layers from '../contexts/Layers';
-import * as ShaderManagerContext from '../contexts/ShaderManager';
-import * as WorkspaceContext from '../contexts/Workspace';
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback } from 'react';
+import { useDispatch, useSelector } from '../states/store';
 import { Colors } from '../constants/Colors';
-import { Contexts } from '../contexts/Contexts';
 import { SHADERMAN } from '../ShaderManager';
 import { registerMouseEvent } from '../utils/registerMouseEvent';
 import styled from 'styled-components';
@@ -40,27 +37,30 @@ export interface WorkspaceProps {
 }
 
 export const Workspace = ( { className }: WorkspaceProps ): JSX.Element => {
-  const contexts = useContext( Contexts.Store );
-
-  const view = contexts.state.workspace.view;
+  const { view } = useSelector( ( state ) => ( {
+    view: state.workspace.view,
+  } ) );
+  const dispatch = useDispatch();
 
   const canvas = useCallback( ( canvas: HTMLCanvasElement ) => {
     if ( canvas ) {
       SHADERMAN.attachCanvas( canvas );
-      contexts.dispatch( {
-        type: ShaderManagerContext.ActionType.ChangeResolution,
+      dispatch( {
+        type: 'ShaderManager/ChangeResolution',
         width: SHADERMAN.width,
-        height: SHADERMAN.height
+        height: SHADERMAN.height,
       } );
 
       const layer = SHADERMAN.createLayer();
-      contexts.dispatch( {
-        type: Layers.ActionType.AddLayer,
-        code: layer.code
+      const layerIndex = SHADERMAN.layers.indexOf( layer );
+      dispatch( {
+        type: 'ShaderManager/AddLayer',
+        layerIndex,
+        code: layer.code!,
       } );
-      contexts.dispatch( {
-        type: Layers.ActionType.SelectLayer,
-        index: 0
+      dispatch( {
+        type: 'ShaderManager/SelectLayer',
+        layerIndex,
       } );
     }
   }, [] );
@@ -70,10 +70,10 @@ export const Workspace = ( { className }: WorkspaceProps ): JSX.Element => {
       registerMouseEvent(
         ( event, movementSum ) => {
           const invPixelRatio = 1.0 / window.devicePixelRatio;
-          contexts.dispatch( {
-            type: WorkspaceContext.ActionType.MoveView,
+          dispatch( {
+            type: 'Workspace/MoveView',
             x: movementSum.x * invPixelRatio,
-            y: movementSum.y * invPixelRatio
+            y: movementSum.y * invPixelRatio,
           } );
         }
       );
@@ -81,9 +81,9 @@ export const Workspace = ( { className }: WorkspaceProps ): JSX.Element => {
   };
 
   const handleWheel = ( event: React.WheelEvent ): void => {
-    contexts.dispatch( {
-      type: WorkspaceContext.ActionType.ZoomView,
-      zoom: -0.001 * event.deltaY
+    dispatch( {
+      type: 'Workspace/ZoomView',
+      zoom: -0.001 * event.deltaY,
     } );
   };
 

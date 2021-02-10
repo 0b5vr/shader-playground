@@ -78,6 +78,7 @@ module.exports = {
     "@typescript-eslint/member-naming": [ "error", { "private": "^_", "protected": "^_" } ], // private members must start from underscore
     "@typescript-eslint/no-explicit-any": [ "off" ], // yea
     "@typescript-eslint/no-non-null-assertion": [ "off" ], // yea
+    "@typescript-eslint/no-empty-interface": [ "off" ], // we need to perform mixins
     "@typescript-eslint/explicit-function-return-type": [ "error", { "allowExpressions": true } ], // return type is required
     "@typescript-eslint/explicit-member-accessibility": [ "error" ], // `public` / `private` for members and methods are required
   }

@@ -1,6 +1,9 @@
 import { GLCat, GLCatBuffer } from '@fms-cat/glcat-ts';
+import { EventEmittable } from './utils/EventEmittable';
 import JSZip from 'jszip';
 import { ShaderManagerLayer } from './ShaderManagerLayer';
+import { ShaderManagerPreset } from './ShaderManagerPreset';
+import { applyMixins } from './utils/applyMixins';
 
 export class ShaderManager {
   private _time = 0.0;
@@ -38,7 +41,10 @@ export class ShaderManager {
     if ( !this._canvas ) {
       throw new Error( 'Canvas is not attached' );
     }
+
     this._canvas.width = w;
+
+    this.__emit( 'changeResolution', { width: this.width, height: this.height } );
   }
 
   public get height(): number { return this._canvas?.height || -1; }
@@ -46,7 +52,10 @@ export class ShaderManager {
     if ( !this._canvas ) {
       throw new Error( 'Canvas is not attached' );
     }
+
     this._canvas.height = h;
+
+    this.__emit( 'changeResolution', { width: this.width, height: this.height } );
   }
 
   private _beginDate = 0.001 * Date.now();
@@ -81,10 +90,48 @@ export class ShaderManager {
     window.addEventListener( 'resize', this._handleResize );
   }
 
+  public loadPreset( preset: ShaderManagerPreset ): void {
+    this.clearLayers();
+
+    this.width = preset.width;
+    this.height = preset.height;
+
+    preset.layers.forEach( ( layerPreset ) => {
+      const layer = this.createLayer();
+      layer.compileShader( layerPreset.code );
+      Object.entries( layerPreset.textures ?? {} ).forEach( ( [ name, url ] ) => {
+        layer.createTexture( name, url );
+      } );
+    } );
+  }
+
   public createLayer(): ShaderManagerLayer {
     const layer = new ShaderManagerLayer( this );
+    const index = this._layers.length;
+
     this._layers.push( layer );
+
+    this.__emit( 'addLayer', { index, layer } );
+
     return layer;
+  }
+
+  public deleteLayer( layer: ShaderManagerLayer ): void {
+    const index = this._layers.indexOf( layer );
+    if ( index === -1 ) {
+      throw new Error( 'Given layer does not exist in this manager!' );
+    }
+
+    this._layers.splice( index, 1 );
+
+    this.__emit( 'deleteLayer', { index, layer } );
+  }
+
+  public clearLayers(): void {
+    this._layers.concat().forEach( ( layer ) => {
+      this.deleteLayer( layer );
+      layer.dispose();
+    } );
   }
 
   public toBlob(): Promise<Blob> {
@@ -184,3 +231,12 @@ function update(): void {
   }
 }
 update();
+
+export interface ShaderManagerEvents {
+  changeResolution: { width: number; height: number };
+  addLayer: { layer: ShaderManagerLayer; index: number };
+  deleteLayer: { layer: ShaderManagerLayer; index: number };
+}
+
+export interface ShaderManager extends EventEmittable<ShaderManagerEvents> {}
+applyMixins( ShaderManager, [ EventEmittable ] );

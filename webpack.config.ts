@@ -29,6 +29,12 @@ https://github.com/FMS-Cat/shader-playground/blob/master/LICENSE`;
     module: {
       rules: [
         {
+          test: /\.(png|jpg|gif)$/i,
+          use: {
+            loader: 'file-loader',
+          },
+        },
+        {
           test: /\.tsx?$/,
           exclude: /node_modules/,
           use: {

@@ -1,9 +1,11 @@
 import { GLCatProgram, GLCatTexture } from '@fms-cat/glcat-ts';
+import { EventEmittable } from './utils/EventEmittable';
 import { ShaderManager } from './ShaderManager';
+import { applyMixins } from './utils/applyMixins';
 import defaultFrag from './shaders/default.frag';
 import defaultVert from './shaders/default.vert';
 
-type ShaderManagerLayerTextures = Array<{
+type ShaderManagerLayerTextures = Map<string, {
   url: string;
   texture: GLCatTexture;
 }>;
@@ -15,8 +17,8 @@ export class ShaderManagerLayer {
   private _manager: ShaderManager;
   private _program?: GLCatProgram;
 
-  private _textures: ShaderManagerLayerTextures = [];
-  public get textures(): ShaderManagerLayerTextures { return this._textures; }
+  private __textureMap: ShaderManagerLayerTextures = new Map();
+  public get textures(): ShaderManagerLayerTextures { return this.__textureMap; }
 
   /**
    * Whether the layer can render or not.
@@ -36,6 +38,13 @@ export class ShaderManagerLayer {
     this.compileShader( defaultFrag );
   }
 
+  public dispose(): void {
+    this._program?.dispose( true );
+    this.__textureMap.forEach( ( texture ) => {
+      texture.texture.dispose();
+    } );
+  }
+
   public createTexture( name: string, url: string ): void {
     const gl = this._manager.gl;
     const glCat = this._manager.glCat;
@@ -44,29 +53,32 @@ export class ShaderManagerLayer {
       throw new Error( 'Canvas is not attached to the ShaderManager' );
     }
 
-    const index = this._textures.length;
-    this._textures[ index ] = {
+    this.__textureMap.set( name, {
       url,
       texture: glCat.dummyTexture()!
-    };
+    } );
+    this.__emit( 'addTexture', { name, url } );
 
     const image = new Image();
     image.onload = () => {
       const texture = glCat.createTexture()!;
       texture.pixelStorei( gl.UNPACK_FLIP_Y_WEBGL, true );
       texture.setTexture( image );
-      this._textures[ index ] = {
+      this.__textureMap.set( name, {
         url,
         texture
-      };
+      } );
     };
     image.src = url;
   }
 
-  public deleteTexture( index: number ): void {
-    const texture = this._textures[ index ];
-    texture.texture.dispose();
-    this._textures.splice( index, 1 );
+  public deleteTexture( name: string ): void {
+    const texture = this.__textureMap.get( name );
+
+    if ( texture ) {
+      texture.texture.dispose();
+      this.__textureMap.delete( name );
+    }
   }
 
   public compileShader( code: string ): void {
@@ -89,8 +101,13 @@ export class ShaderManagerLayer {
           prevProgram.dispose();
         }
       }
-    } catch ( e ) {
-      console.error( e );
+
+      this.__emit( 'compileShader', { code } );
+    } catch ( error ) {
+      console.error( error );
+
+      this.__emit( 'compileShader', { code, error } );
+
       return;
     }
   }
@@ -116,11 +133,19 @@ export class ShaderManagerLayer {
     program.uniform1f( 'deltaTime', deltaTime );
     program.uniform2f( 'resolution', width, height );
 
-    this._textures.forEach( ( texture, index ) => {
-      const name = 'sampler' + index;
-      program.uniformTexture( name, texture.texture.raw, index );
+    Array.from( this.__textureMap.entries() ).forEach( ( [ name, { texture } ], index ) => {
+      program.uniformTexture( name, texture.raw, index );
     } );
 
     gl.drawArrays( gl.TRIANGLE_STRIP, 0, 4 );
   }
 }
+
+export interface ShaderManagerLayerEvents {
+  addTexture: { name: string; url: string };
+  deleteTexture: { name: string };
+  compileShader: { code: string; error?: any };
+}
+
+export interface ShaderManagerLayer extends EventEmittable<ShaderManagerLayerEvents> {}
+applyMixins( ShaderManagerLayer, [ EventEmittable ] );
