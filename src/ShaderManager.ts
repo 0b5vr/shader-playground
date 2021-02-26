@@ -75,7 +75,7 @@ export class ShaderManager {
     this._canvas.width = 256;
     this._canvas.height = 256;
 
-    const gl = this._gl = this._canvas.getContext( 'webgl', { premultipliedAlpha: false } )!;
+    const gl = this._gl = this._canvas.getContext( 'webgl', { premultipliedAlpha: true } )!;
     const glCat = this._glCat = new GLCat( gl );
 
     this._bufferQuad = glCat.createBuffer()!;
