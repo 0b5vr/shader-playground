@@ -176,9 +176,10 @@ void main() {
     vec3 normal = normalFunc( rayPos );
 
     vec2 uv = result.uv;
-    vec3 gold = uv.y < 0.51
-      ? baseColor * exp( -90.0 * ( uv.y - 0.45 ) )
-      : baseColor * exp( -90.0 * ( uv.y - 0.5 ) );
+    float phase = 20.0 * ( uv.y - 0.51 );
+    vec3 gold = phase < 0.0
+      ? baseColor * exp( -6.0 * ( phase + 1.0 ) )
+      : baseColor * exp( -6.0 * phase );
     vec3 dif = vec3( 0.2 + 0.8 * saturate( normal.z ) );
     dif *= mix(
       vec3( 0.1, 0.1, 0.1 ),
