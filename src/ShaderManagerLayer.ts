@@ -27,7 +27,8 @@ export class ShaderManagerLayer {
   public get isReady(): boolean { return !!this._program; }
 
   /**
-   * **DO NOT CALL THIS FUNCTION DIRECTLY!**
+   * **DO NOT CALL THIS CONSTRUCTOR DIRECTLY!**
+   * Intended to be called via {@link ShaderManager.createLayer}.
    *
    * Instantiate a [[ShaderManagerLayer]].
    *
