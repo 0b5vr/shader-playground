@@ -1,5 +1,6 @@
 import { GLCat, GLCatBuffer } from '@fms-cat/glcat-ts';
 import { EventEmittable } from './utils/EventEmittable';
+import { GPUTimer } from './utils/GPUTimer';
 import JSZip from 'jszip';
 import { ShaderManagerLayer } from './ShaderManagerLayer';
 import { ShaderManagerPreset } from './ShaderManagerPreset';
@@ -29,6 +30,9 @@ export class ShaderManager {
 
   private _glCat?: GLCat;
   public get glCat(): GLCat | undefined { return this._glCat; }
+
+  private _gpuTimer?: GPUTimer;
+  public get gpuTimer(): GPUTimer | undefined { return this._gpuTimer; }
 
   private _bufferQuad?: GLCatBuffer;
   public get bufferQuad(): GLCatBuffer | undefined { return this._bufferQuad; }
@@ -75,8 +79,9 @@ export class ShaderManager {
     this._canvas.width = 256;
     this._canvas.height = 256;
 
-    const gl = this._gl = this._canvas.getContext( 'webgl', { premultipliedAlpha: true } )!;
+    const gl = this._gl = this._canvas.getContext( 'webgl2', { premultipliedAlpha: true } )!;
     const glCat = this._glCat = new GLCat( gl );
+    this._gpuTimer = new GPUTimer( gl );
 
     this._bufferQuad = glCat.createBuffer()!;
     this._bufferQuad.setVertexbuffer( new Float32Array( [ -1, -1, 1, -1, -1, 1, 1, 1 ] ) );

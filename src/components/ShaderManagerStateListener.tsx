@@ -39,6 +39,17 @@ export const ShaderManagerStateListener = (): JSX.Element => {
             code,
           } );
         } );
+
+        layer.on( 'gpuTime', ( { frame, median } ) => {
+          dispatch( {
+            type: 'ShaderManager/UpdateLayerGPUTime',
+            layerIndex: index,
+            gpuTime: {
+              frame,
+              median,
+            },
+          } );
+        } );
       } );
 
       SHADERMAN.on( 'deleteLayer', ( { index } ) => {

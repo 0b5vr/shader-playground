@@ -1,5 +1,6 @@
 import { GLCatProgram, GLCatTexture } from '@fms-cat/glcat-ts';
 import { EventEmittable } from './utils/EventEmittable';
+import { HistoryPercentileCalculator } from '@fms-cat/experimental';
 import { ShaderManager } from './ShaderManager';
 import { applyMixins } from './utils/applyMixins';
 import defaultFrag from './shaders/default.frag';
@@ -16,6 +17,7 @@ export class ShaderManagerLayer {
 
   private _manager: ShaderManager;
   private _program?: GLCatProgram;
+  private __measureMedianCalc: HistoryPercentileCalculator;
 
   private __textureMap: ShaderManagerLayerTextures = new Map();
   public get textures(): ShaderManagerLayerTextures { return this.__textureMap; }
@@ -37,6 +39,8 @@ export class ShaderManagerLayer {
   public constructor( manager: ShaderManager ) {
     this._manager = manager;
     this.compileShader( defaultFrag );
+
+    this.__measureMedianCalc = new HistoryPercentileCalculator( 60 );
   }
 
   public dispose(): void {
@@ -56,7 +60,7 @@ export class ShaderManagerLayer {
 
     this.__textureMap.set( name, {
       url,
-      texture: glCat.dummyTexture()!
+      texture: glCat.dummyTexture
     } );
     this.__emit( 'addTexture', { name, url } );
 
@@ -114,9 +118,9 @@ export class ShaderManagerLayer {
   }
 
   public render(): void {
-    const { time, deltaTime, width, height, gl, glCat } = this._manager;
+    const { time, deltaTime, width, height, gl, glCat, gpuTimer } = this._manager;
 
-    if ( !gl || !glCat ) {
+    if ( !gl || !glCat || !gpuTimer ) {
       throw new Error( 'Canvas is not attached to the ShaderManager' );
     }
 
@@ -126,23 +130,33 @@ export class ShaderManagerLayer {
       throw new Error( '`ShaderManagerLayer.render`: You have to call `ShaderManagerLayer.compileShader` first' );
     }
 
-    glCat.useProgram( program );
+    gpuTimer.measure( () => {
+      glCat.useProgram( program );
 
-    program.attribute( 'p', this._manager.bufferQuad!, 2 );
+      program.attribute( 'p', this._manager.bufferQuad!, 2 );
 
-    program.uniform1f( 'time', time );
-    program.uniform1f( 'deltaTime', deltaTime );
-    program.uniform2f( 'resolution', width, height );
+      program.uniform1f( 'time', time );
+      program.uniform1f( 'deltaTime', deltaTime );
+      program.uniform2f( 'resolution', width, height );
 
-    Array.from( this.__textureMap.entries() ).forEach( ( [ name, { texture } ], index ) => {
-      program.uniformTexture( name, texture.raw, index );
+      Array.from( this.__textureMap.entries() ).forEach( ( [ name, { texture } ] ) => {
+        program.uniformTexture( name, texture );
+      } );
+
+      gl.drawArrays( gl.TRIANGLE_STRIP, 0, 4 );
+    } ).then( ( time ) => {
+      this.__measureMedianCalc.push( time );
+
+      this.__emit( 'gpuTime', {
+        frame: time,
+        median: this.__measureMedianCalc.median,
+      } );
     } );
-
-    gl.drawArrays( gl.TRIANGLE_STRIP, 0, 4 );
   }
 }
 
 export interface ShaderManagerLayerEvents {
+  gpuTime: { frame: number; median: number };
   addTexture: { name: string; url: string };
   deleteTexture: { name: string };
   compileShader: { code: string; error?: any };

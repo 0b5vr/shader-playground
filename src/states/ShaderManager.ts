@@ -12,6 +12,10 @@ export interface State {
     textures: Map<string, {
       url: string;
     }>;
+    gpuTime: {
+      frame: number;
+      median: number;
+    };
   }>;
   isRecording: boolean;
 }
@@ -37,6 +41,13 @@ export type Action = {
   layerIndex: number;
   code: string;
   markDirty?: boolean;
+} | {
+  type: 'ShaderManager/UpdateLayerGPUTime';
+  layerIndex: number;
+  gpuTime: {
+    frame: number;
+    median: number;
+  };
 } | {
   type: 'ShaderManager/AddLayer';
   layerIndex: number;
@@ -80,11 +91,17 @@ export const reducer: Reducer<State, Action> = ( state = initialState, action ) 
       if ( action.markDirty ) {
         newState.layers[ action.layerIndex ].isDirty = true;
       }
+    } else if ( action.type === 'ShaderManager/UpdateLayerGPUTime' ) {
+      newState.layers[ action.layerIndex ].gpuTime = action.gpuTime;
     } else if ( action.type === 'ShaderManager/AddLayer' ) {
       newState.layers[ action.layerIndex ] = {
         code: action.code,
         isDirty: false,
         textures: new Map(),
+        gpuTime: {
+          frame: 0.0,
+          median: 0.0,
+        },
       };
     } else if ( action.type === 'ShaderManager/DeleteLayer' ) {
       newState.layers.splice( action.layerIndex, 1 );

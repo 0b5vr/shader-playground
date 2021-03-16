@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { useDispatch, useSelector } from '../states/store';
 import { Colors } from '../constants/Colors';
+import { HeaderMeasure } from './HeaderMeasure';
 import { Metrics } from '../constants/Metrics';
 import { SHADERMAN } from '../ShaderManager';
 import { ShaderManagerPreset } from '../ShaderManagerPreset';
@@ -222,6 +223,8 @@ export const Header = ( { className }: HeaderProps ): JSX.Element => {
             </option>
           ) ) }
         </SelectPresets>
+        <VL />
+        <HeaderMeasure />
       </Container>
     </Root>
   </>;
