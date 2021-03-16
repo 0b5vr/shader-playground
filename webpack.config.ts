@@ -9,12 +9,12 @@ export default ( env: any, argv: any ): webpack.Configuration => {
   const isProd = argv.mode === 'production';
 
   const banner = isProd
-    ? '(c) 2019 FMS_Cat - https://github.com/FMS-Cat/shader-playground/blob/master/LICENSE'
+    ? '(c) 2019 FMS_Cat - https://github.com/FMS-Cat/shader-playground/blob/release/LICENSE'
     : `shader-playground v${require( './package.json' ).version}
 
 Copyright (c) 2019 FMS_Cat
 shader-playground is distributed under the MIT License
-https://github.com/FMS-Cat/shader-playground/blob/master/LICENSE`;
+https://github.com/FMS-Cat/shader-playground/blob/release/LICENSE`;
 
   return {
     mode: argv.mode,
