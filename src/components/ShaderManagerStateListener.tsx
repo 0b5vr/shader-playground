@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { SHADERMAN } from '../ShaderManager';
+import { ShaderManagerLayer } from '../ShaderManagerLayer';
 import { useDispatch } from '../states/store';
 
 // == component ====================================================================================
@@ -8,7 +9,7 @@ export const ShaderManagerStateListener = (): JSX.Element => {
 
   useEffect(
     () => {
-      SHADERMAN.on( 'addLayer', ( { index, layer } ) => {
+      const addLayer = ( { index, layer }: { index: number; layer: ShaderManagerLayer } ): void => {
         dispatch( {
           type: 'ShaderManager/AddLayer',
           layerIndex: index,
@@ -50,6 +51,12 @@ export const ShaderManagerStateListener = (): JSX.Element => {
             },
           } );
         } );
+      };
+
+      SHADERMAN.on( 'addLayer', addLayer );
+
+      SHADERMAN.layers.forEach( ( layer, index ) => {
+        addLayer( { layer, index } );
       } );
 
       SHADERMAN.on( 'deleteLayer', ( { index } ) => {
