@@ -2,8 +2,8 @@ import { Action, State } from '../states/store';
 import styled, { createGlobalStyle } from 'styled-components';
 import { Colors } from '../constants/Colors';
 import { Editor } from './Editor';
-import { Header } from './Header';
 import { Metrics } from '../constants/Metrics';
+import { PaneList } from './PaneList';
 import { Provider } from 'react-redux';
 import React from 'react';
 import { ShaderManagerStateListener } from './ShaderManagerStateListener';
@@ -36,24 +36,17 @@ const StyledTextures = styled( Textures )`
 
 const StyledEditor = styled( Editor )`
   width: ${ Metrics.editorWidth };
-  height: calc( 100% - ${ Metrics.texturesHeight } - ${ Metrics.headerHeight } );
+  height: calc( 100% - ${ Metrics.texturesHeight } );
   position: absolute;
   right: 0;
-  top: ${ Metrics.headerHeight };
+  top: 0;
 `;
 
 const StyledWorkspace = styled( Workspace )`
   width: calc( 100% - ${ Metrics.editorWidth } );
-  height: calc( 100% - ${ Metrics.headerHeight } );
-  top: ${ Metrics.headerHeight };
-  position: absolute;
-`;
-
-const StyledHeader = styled( Header )`
-  width: 100%;
-  height: ${ Metrics.headerHeight };
-  left: 0;
+  height: 100%;
   top: 0;
+  position: absolute;
 `;
 
 const Root = styled.div`
@@ -77,7 +70,7 @@ const OutOfContextApp = (): JSX.Element => {
       <StyledWorkspace />
       <StyledEditor />
       <StyledTextures />
-      <StyledHeader />
+      <PaneList />
     </Root>
   </>;
 };

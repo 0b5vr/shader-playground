@@ -9,6 +9,8 @@ export const Colors = {
 
   fadeBlack8: 'rgba( 0, 0, 0, 0.5 )',
 
+  accent: '#22dd88',
+
   red: '#ff0000',
 
   constant: '#ff0066',
