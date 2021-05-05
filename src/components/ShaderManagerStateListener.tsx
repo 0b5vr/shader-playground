@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { SHADERMAN } from '../ShaderManager';
 import { ShaderManagerLayer } from '../ShaderManagerLayer';
+import { ShaderManagerTexture } from '../ShaderManagerTexture';
 import { useDispatch } from '../states/store';
 
 // == component ====================================================================================
@@ -10,33 +11,84 @@ export const ShaderManagerStateListener = (): JSX.Element => {
   useEffect(
     () => {
       const addLayer = ( { index, layer }: { index: number; layer: ShaderManagerLayer } ): void => {
+        const layerIndex = index;
+
+        const addTexture = (
+          { index, texture }: { index: number; texture: ShaderManagerTexture }
+        ): void => {
+          const textureIndex = index;
+
+          dispatch( {
+            type: 'ShaderManager/AddLayerTexture',
+            layerIndex,
+            textureIndex,
+            name: texture.name,
+            url: texture.url,
+            wrap: texture.wrap,
+            filter: texture.filter,
+          } );
+
+          texture.on( 'load', ( { url } ) => {
+            dispatch( {
+              type: 'ShaderManager/ChangeLayerTextureUrl',
+              layerIndex,
+              textureIndex,
+              url,
+            } );
+          } );
+
+          texture.on( 'changeName', ( { name } ) => {
+            dispatch( {
+              type: 'ShaderManager/ChangeLayerTextureName',
+              layerIndex,
+              textureIndex,
+              name,
+            } );
+          } );
+
+          texture.on( 'changeWrap', ( { wrap } ) => {
+            dispatch( {
+              type: 'ShaderManager/ChangeLayerTextureWrap',
+              layerIndex,
+              textureIndex,
+              wrap,
+            } );
+          } );
+
+          texture.on( 'changeFilter', ( { filter } ) => {
+            dispatch( {
+              type: 'ShaderManager/ChangeLayerTextureFilter',
+              layerIndex,
+              textureIndex,
+              filter,
+            } );
+          } );
+        };
+
         dispatch( {
           type: 'ShaderManager/AddLayer',
           layerIndex: index,
           code: layer.code ?? ''
         } );
 
-        layer.on( 'addTexture', ( { name, url } ) => {
-          dispatch( {
-            type: 'ShaderManager/AddLayerTexture',
-            layerIndex: index,
-            name,
-            url,
-          } );
+        layer.on( 'addTexture', addTexture );
+
+        layer.textures.forEach( ( texture, index ) => {
+          addTexture( { texture, index } );
         } );
 
-        layer.on( 'deleteTexture', ( { name } ) => {
+        layer.on( 'deleteTexture', ( { index } ) => {
           dispatch( {
             type: 'ShaderManager/DeleteLayerTexture',
-            layerIndex: index,
-            name,
+            layerIndex,
+            textureIndex: index,
           } );
         } );
 
         layer.on( 'compileShader', ( { code } ) => {
           dispatch( {
             type: 'ShaderManager/ChangeLayerCode',
-            layerIndex: index,
+            layerIndex,
             code,
           } );
         } );
@@ -44,7 +96,7 @@ export const ShaderManagerStateListener = (): JSX.Element => {
         layer.on( 'gpuTime', ( { frame, median } ) => {
           dispatch( {
             type: 'ShaderManager/UpdateLayerGPUTime',
-            layerIndex: index,
+            layerIndex,
             gpuTime: {
               frame,
               median,

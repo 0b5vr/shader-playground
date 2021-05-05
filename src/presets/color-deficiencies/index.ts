@@ -8,9 +8,12 @@ const preset: ShaderManagerPreset = {
   layers: [
     {
       code: fragMain,
-      textures: {
-        sampler0: imgFmsCat,
-      },
+      textures: [
+        {
+          name: 'sampler0',
+          url: imgFmsCat,
+        },
+      ],
     },
   ],
 };

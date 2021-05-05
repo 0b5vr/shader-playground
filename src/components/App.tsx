@@ -8,7 +8,6 @@ import { Provider } from 'react-redux';
 import React from 'react';
 import { ShaderManagerStateListener } from './ShaderManagerStateListener';
 import { Store } from 'redux';
-import { Textures } from './Textures';
 import { Workspace } from './Workspace';
 
 // == styles =======================================================================================
@@ -26,17 +25,9 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
-const StyledTextures = styled( Textures )`
-  width: ${ Metrics.editorWidth };
-  height: ${ Metrics.texturesHeight };
-  position: absolute;
-  right: 0;
-  bottom: 0;
-`;
-
 const StyledEditor = styled( Editor )`
   width: ${ Metrics.editorWidth };
-  height: calc( 100% - ${ Metrics.texturesHeight } );
+  height: 100%;
   position: absolute;
   right: 0;
   top: 0;
@@ -69,7 +60,6 @@ const OutOfContextApp = (): JSX.Element => {
       <ShaderManagerStateListener />
       <StyledWorkspace />
       <StyledEditor />
-      <StyledTextures />
       <PaneList />
     </Root>
   </>;

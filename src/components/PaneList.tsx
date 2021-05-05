@@ -6,6 +6,7 @@ import { Performance } from './Performance';
 import { Presets } from './Presets';
 import { Record } from './Record';
 import { Resolution } from './Resolution';
+import { Textures } from './Textures';
 
 // == element ======================================================================================
 const PaneList = (): JSX.Element => {
@@ -14,6 +15,7 @@ const PaneList = (): JSX.Element => {
     'record',
     'presets',
     'performance',
+    'textures',
   ] );
 
   const handleClick = useCallback(
@@ -63,6 +65,15 @@ const PaneList = (): JSX.Element => {
       initPosition={ { left: 0, top: 60 } }
     >
       <Performance />
+    </Pane>,
+    'textures': <Pane
+      key="textures"
+      paneKey="textures"
+      title="Textures"
+      onClick={ handleClick }
+      initPosition={ { left: 0, top: 80 } }
+    >
+      <Textures />
     </Pane>,
   };
 

@@ -1,30 +1,20 @@
-import { useDispatch, useSelector } from '../states/store';
 import { Colors } from '../constants/Colors';
-import { Metrics } from '../constants/Metrics';
 import React from 'react';
 import { SHADERMAN } from '../ShaderManager';
 import { Texture } from './Texture';
 import styled from 'styled-components';
+import { useSelector } from '../states/store';
 
 // == styles =======================================================================================
-const StyledTexture = styled( Texture )`
-  display: inline-block;
-  width: calc( ${ Metrics.texturesHeight } - 2.0 * ${ Metrics.genericMargin } );
-  height: calc( ${ Metrics.texturesHeight } - 2.0 * ${ Metrics.genericMargin } );
-
-  & + & {
-    margin-left: ${ Metrics.genericMargin };
-  }
+const TexturesContainer = styled.div`
+  width: 256px;
 `;
 
-const TexturesContainer = styled.div`
-  padding: ${ Metrics.genericMargin };
-  white-space: nowrap;
+const Margin = styled.div`
+  height: 40px;
 `;
 
 const Root = styled.div`
-  width: 100%;
-  height: 100%;
   background: ${ Colors.back2 };
 `;
 
@@ -42,7 +32,6 @@ export const Textures = ( { className }: TexturesProps ): JSX.Element => {
 
     return { layerIndex, layer };
   } );
-  const dispatch = useDispatch();
 
   const handleDragOver = ( event: React.DragEvent ): void => {
     event.preventDefault();
@@ -58,15 +47,9 @@ export const Textures = ( { className }: TexturesProps ): JSX.Element => {
       if ( layerIndex != null && actualLayer ) {
         Array.from( files ).forEach( ( file ) => {
           const blob = new Blob( [ file ] );
-          const name = 'sampler' + actualLayer.textures.size;
+          const name = 'sampler' + actualLayer.textures.length;
           const url = URL.createObjectURL( blob );
-          actualLayer.createTexture( name, url );
-          dispatch( {
-            type: 'ShaderManager/AddLayerTexture',
-            layerIndex,
-            name,
-            url
-          } );
+          actualLayer.loadTexture( name, url );
         } );
       }
     }
@@ -79,12 +62,12 @@ export const Textures = ( { className }: TexturesProps ): JSX.Element => {
     >
       { ( ( layerIndex != null ) && layer ) ? (
         <TexturesContainer>
-          { Array.from( layer.textures ).map( ( [ name, { url } ] ) => <StyledTexture
-            key={ name }
+          { layer.textures.map( ( _, index ) => <Texture
+            key={ index }
             layerIndex={ layerIndex }
-            name={ name }
-            src={ url }
+            textureIndex={ index }
           /> ) }
+          <Margin />
         </TexturesContainer>
       ) : null }
     </Root>

@@ -1,3 +1,4 @@
+import { ShaderManagerTextureFilter, ShaderManagerTextureWrap } from '../ShaderManagerTexture';
 import { Reducer } from 'redux';
 import { produce } from 'immer';
 
@@ -9,8 +10,11 @@ export interface State {
   layers: Array<{
     code: string;
     isDirty: boolean;
-    textures: Map<string, {
-      url: string;
+    textures: Array<{
+      name: string;
+      url: string | undefined;
+      wrap: ShaderManagerTextureWrap;
+      filter: ShaderManagerTextureFilter;
     }>;
     gpuTime: {
       frame: number;
@@ -49,6 +53,9 @@ export type Action = {
     median: number;
   };
 } | {
+  type: 'ShaderManager/DeleteLayer';
+  layerIndex: number;
+} | {
   type: 'ShaderManager/AddLayer';
   layerIndex: number;
   code: string;
@@ -56,21 +63,37 @@ export type Action = {
   type: 'ShaderManager/DeleteLayer';
   layerIndex: number;
 } | {
-  type: 'ShaderManager/AddLayer';
-  code: string;
+  type: 'ShaderManager/ChangeLayerTextureUrl';
   layerIndex: number;
+  textureIndex: number;
+  url: string | undefined;
 } | {
-  type: 'ShaderManager/DeleteLayer';
+  type: 'ShaderManager/ChangeLayerTextureName';
   layerIndex: number;
+  textureIndex: number;
+  name: string;
+} | {
+  type: 'ShaderManager/ChangeLayerTextureWrap';
+  layerIndex: number;
+  textureIndex: number;
+  wrap: ShaderManagerTextureWrap;
+} | {
+  type: 'ShaderManager/ChangeLayerTextureFilter';
+  layerIndex: number;
+  textureIndex: number;
+  filter: ShaderManagerTextureFilter;
 } | {
   type: 'ShaderManager/AddLayerTexture';
   layerIndex: number;
+  textureIndex: number;
   name: string;
-  url: string;
+  url: string | undefined;
+  wrap: ShaderManagerTextureWrap;
+  filter: ShaderManagerTextureFilter;
 } | {
   type: 'ShaderManager/DeleteLayerTexture';
   layerIndex: number;
-  name: string;
+  textureIndex: number;
 } | {
   type: 'ShaderManager/StartRecording';
 } | {
@@ -97,7 +120,7 @@ export const reducer: Reducer<State, Action> = ( state = initialState, action ) 
       newState.layers[ action.layerIndex ] = {
         code: action.code,
         isDirty: false,
-        textures: new Map(),
+        textures: [],
         gpuTime: {
           frame: 0.0,
           median: 0.0,
@@ -105,10 +128,23 @@ export const reducer: Reducer<State, Action> = ( state = initialState, action ) 
       };
     } else if ( action.type === 'ShaderManager/DeleteLayer' ) {
       newState.layers.splice( action.layerIndex, 1 );
+    } else if ( action.type === 'ShaderManager/ChangeLayerTextureUrl' ) {
+      newState.layers[ action.layerIndex ].textures[ action.textureIndex ].url = action.url;
+    } else if ( action.type === 'ShaderManager/ChangeLayerTextureName' ) {
+      newState.layers[ action.layerIndex ].textures[ action.textureIndex ].name = action.name;
+    } else if ( action.type === 'ShaderManager/ChangeLayerTextureWrap' ) {
+      newState.layers[ action.layerIndex ].textures[ action.textureIndex ].wrap = action.wrap;
+    } else if ( action.type === 'ShaderManager/ChangeLayerTextureFilter' ) {
+      newState.layers[ action.layerIndex ].textures[ action.textureIndex ].filter = action.filter;
     } else if ( action.type === 'ShaderManager/AddLayerTexture' ) {
-      newState.layers[ action.layerIndex ].textures.set( action.name, { url: action.url } );
+      newState.layers[ action.layerIndex ].textures[ action.textureIndex ] = {
+        name: action.name,
+        url: action.url,
+        wrap: action.wrap,
+        filter: action.filter,
+      };
     } else if ( action.type === 'ShaderManager/DeleteLayerTexture' ) {
-      newState.layers[ action.layerIndex ].textures.delete( action.name );
+      newState.layers[ action.layerIndex ].textures.splice( action.textureIndex, 1 );
     } else if ( action.type === 'ShaderManager/StartRecording' ) {
       newState.isRecording = true;
     } else if ( action.type === 'ShaderManager/EndRecording' ) {

@@ -101,11 +101,20 @@ export class ShaderManager {
     this.width = preset.width;
     this.height = preset.height;
 
-    preset.layers.forEach( ( layerPreset ) => {
+    preset.layers.forEach( ( { code, textures } ) => {
       const layer = this.createLayer();
-      layer.compileShader( layerPreset.code );
-      Object.entries( layerPreset.textures ?? {} ).forEach( ( [ name, url ] ) => {
-        layer.createTexture( name, url );
+      layer.compileShader( code );
+
+      textures?.forEach( ( { name, url, wrap, filter } ) => {
+        const texture = layer.loadTexture( name, url );
+
+        if ( wrap != null ) {
+          texture.wrap = wrap;
+        }
+
+        if ( filter != null ) {
+          texture.filter = filter;
+        }
       } );
     } );
   }
@@ -121,22 +130,20 @@ export class ShaderManager {
     return layer;
   }
 
-  public deleteLayer( layer: ShaderManagerLayer ): void {
-    const index = this._layers.indexOf( layer );
-    if ( index === -1 ) {
-      throw new Error( 'Given layer does not exist in this manager!' );
-    }
+  public deleteLayer( index: number ): void {
+    const layer = this._layers[ index ];
 
     this._layers.splice( index, 1 );
+
+    layer.dispose();
 
     this.__emit( 'deleteLayer', { index, layer } );
   }
 
   public clearLayers(): void {
-    this._layers.concat().forEach( ( layer ) => {
-      this.deleteLayer( layer );
-      layer.dispose();
-    } );
+    while ( this._layers.length > 0 ) {
+      this.deleteLayer( 0 );
+    }
   }
 
   public toBlob(): Promise<Blob> {

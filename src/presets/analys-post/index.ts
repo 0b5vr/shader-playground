@@ -9,10 +9,17 @@ const preset: ShaderManagerPreset = {
   layers: [
     {
       code: fragMain,
-      textures: {
-        sampler0: imgWeAreBack,
-        samplerRandom: imgRandom,
-      },
+      textures: [
+        {
+          name: 'sampler0',
+          url: imgWeAreBack,
+        },
+        {
+          name: 'samplerRandom',
+          url: imgRandom,
+          filter: 'linear',
+        }
+      ],
     },
   ],
 };

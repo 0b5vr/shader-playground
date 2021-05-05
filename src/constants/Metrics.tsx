@@ -8,5 +8,4 @@ export const Metrics = {
   genericBorderRadius: '0.5rem',
 
   editorWidth: '30rem',
-  texturesHeight: '6rem',
 };

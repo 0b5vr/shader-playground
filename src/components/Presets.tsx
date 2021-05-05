@@ -1,4 +1,6 @@
 import React, { useCallback } from 'react';
+import { Colors } from '../constants/Colors';
+import { Metrics } from '../constants/Metrics';
 import { SHADERMAN } from '../ShaderManager';
 import { ShaderManagerPreset } from '../ShaderManagerPreset';
 import { presets } from '../presets';
@@ -16,6 +18,16 @@ async function importPreset( name: string ): Promise<ShaderManagerPreset> {
 
 // == styles =======================================================================================
 const SelectPresets = styled.select`
+  display: block;
+  height: 20px;
+  padding: 2px;
+  font-size: 12px;
+  font-family: 'Roboto', sans-serif;
+  font-weight: ${ Metrics.fontWeightNormal };
+  background: ${ Colors.back1 };
+  border: none;
+  border-radius: calc( 0.5 * ${ Metrics.genericBorderRadius } );
+  color: ${ Colors.fore };
 `;
 
 const Root = styled.div`
@@ -29,7 +41,7 @@ export const Presets = (): JSX.Element => {
   const handleChangePresets = useCallback(
     async ( event: React.ChangeEvent<HTMLSelectElement> ): Promise<void> => {
       const value = event.target.value;
-      if ( value != null ) {
+      if ( value !== '' ) {
         const preset = await importPreset( value );
         SHADERMAN.loadPreset( preset );
       }
@@ -42,8 +54,8 @@ export const Presets = (): JSX.Element => {
       <SelectPresets
         onChange={ handleChangePresets }
       >
-        <option>Presets</option>
-        <option>========</option>
+        <option value=''>Presets</option>
+        <option value=''>========</option>
         { Array.from( Object.keys( presets ) ).map( ( key ) => (
           <option key={ key }
             value={ key }
