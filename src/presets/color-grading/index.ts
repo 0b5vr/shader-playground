@@ -1,5 +1,6 @@
 import { ShaderManagerPreset } from '../../ShaderManagerPreset';
 import fragMain from './main.frag';
+import imgFmsCat from '../../images/fms-cat.png';
 
 const preset: ShaderManagerPreset = {
   width: 512,
@@ -7,6 +8,9 @@ const preset: ShaderManagerPreset = {
   layers: [
     {
       code: fragMain,
+      textures: {
+        sampler0: imgFmsCat,
+      },
     },
   ],
 };
