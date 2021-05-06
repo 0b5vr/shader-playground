@@ -51,17 +51,14 @@ export const Workspace = ( { className }: WorkspaceProps ): JSX.Element => {
         height: SHADERMAN.height,
       } );
 
-      const layer = SHADERMAN.createLayer();
+      const layer = SHADERMAN.createLayer( 'layer0' );
       const layerIndex = SHADERMAN.layers.indexOf( layer );
-      dispatch( {
-        type: 'ShaderManager/AddLayer',
-        layerIndex,
-        code: layer.code!,
-      } );
       dispatch( {
         type: 'ShaderManager/SelectLayer',
         layerIndex,
       } );
+
+      SHADERMAN.setScreenLayer( layerIndex );
     }
   }, [] );
 

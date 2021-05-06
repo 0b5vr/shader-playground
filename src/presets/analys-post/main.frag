@@ -57,5 +57,5 @@ void main() {
 
   vec3 col = yiq2rgb( colYIQ );
 
-  gl_FragColor = vec4( col, tex.w );
+  gl_FragColor = vec4( col, saturate( tex.w ) );
 }

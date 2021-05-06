@@ -6,8 +6,10 @@ import imgWeAreBack from '../../images/we-are-back.png';
 const preset: ShaderManagerPreset = {
   width: 640,
   height: 480,
+  screenLayer: 'layer0',
   layers: [
     {
+      name: 'layer0',
       code: fragMain,
       textures: [
         {

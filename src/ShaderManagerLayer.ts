@@ -1,6 +1,6 @@
+import { GLCatFramebuffer, GLCatProgram } from '@fms-cat/glcat-ts';
+import { HistoryPercentileCalculator, Swap } from '@fms-cat/experimental';
 import { EventEmittable } from './utils/EventEmittable';
-import { GLCatProgram } from '@fms-cat/glcat-ts';
-import { HistoryPercentileCalculator } from '@fms-cat/experimental';
 import { ShaderManager } from './ShaderManager';
 import { ShaderManagerTexture } from './ShaderManagerTexture';
 import { applyMixins } from './utils/applyMixins';
@@ -11,14 +11,28 @@ export class ShaderManagerLayer {
   private _code?: string;
   public get code(): string | undefined { return this._code; }
 
+  private __swap: Swap<GLCatFramebuffer>;
+  public get framebuffer(): GLCatFramebuffer {
+    return this.__swap.o;
+  }
+
   private __samplersUsed: string[];
   private _manager: ShaderManager;
   private _program?: GLCatProgram;
   private __measureMedianCalc: HistoryPercentileCalculator;
 
+  private __name: string;
+  public get name(): string {
+    return this.__name;
+  }
+  public set name( name: string ) {
+    this.__name = name;
+
+    this.__emit( 'changeName', { name } );
+  }
+
   private _textures: ShaderManagerTexture[] = [];
   public get textures(): ShaderManagerTexture[] { return this._textures; }
-
 
   /**
    * Whether the layer can render or not.
@@ -34,10 +48,13 @@ export class ShaderManagerLayer {
    *
    * @param manager The parent [[ShaderManager]]
    */
-  public constructor( manager: ShaderManager ) {
+  public constructor( manager: ShaderManager, name: string ) {
     this._manager = manager;
+    this.__name = name;
     this.__samplersUsed = [];
     this.compileShader( defaultFrag );
+
+    this.__swap = this.__createSwap( manager.width, manager.height );
 
     this.__measureMedianCalc = new HistoryPercentileCalculator( 60 );
   }
@@ -45,6 +62,15 @@ export class ShaderManagerLayer {
   public dispose(): void {
     this._program?.dispose( true );
     this.clearTextures();
+  }
+
+  public setResolution( width: number, height: number ): void {
+    this.__swap.i.dispose( true );
+    this.__swap.o.dispose( true );
+
+    this.__swap = this.__createSwap( width, height );
+
+    this.__emit( 'changeResolution', { width, height } );
   }
 
   public loadTexture( name: string, url: string, index?: number ): ShaderManagerTexture {
@@ -141,7 +167,18 @@ export class ShaderManagerLayer {
         }
       } );
 
-      gl.drawArrays( gl.TRIANGLE_STRIP, 0, 4 );
+      this._manager.layers.forEach( ( { name, framebuffer } ) => {
+        if ( this.__samplersUsed.indexOf( name ) !== -1 ) {
+          program.uniformTexture( name, framebuffer.texture! );
+        }
+      } );
+
+      glCat.bindFramebuffer( this.__swap.i, () => {
+        glCat.clear( 0, 0, 0, 0 );
+        gl.drawArrays( gl.TRIANGLE_STRIP, 0, 4 );
+      } );
+
+      this.__swap.swap();
     } ).then( ( time ) => {
       this.__measureMedianCalc.push( time );
 
@@ -150,6 +187,19 @@ export class ShaderManagerLayer {
         median: this.__measureMedianCalc.median,
       } );
     } );
+  }
+
+  private __createSwap( width: number, height: number ): Swap<GLCatFramebuffer> {
+    const glCat = this._manager.glCat;
+
+    if ( !glCat ) {
+      throw new Error( 'Canvas is not attached to the ShaderManager' );
+    }
+
+    return new Swap(
+      glCat.lazyFramebuffer( width, height, { isFloat: true } ),
+      glCat.lazyFramebuffer( width, height, { isFloat: true } ),
+    );
   }
 
   private __getSamplersUsed( program: GLCatProgram ): string[] {
@@ -174,6 +224,8 @@ export class ShaderManagerLayer {
 }
 
 export interface ShaderManagerLayerEvents {
+  changeName: { name: string };
+  changeResolution: { width: number; height: number };
   gpuTime: { frame: number; median: number };
   addTexture: { texture: ShaderManagerTexture; index: number };
   deleteTexture: { texture: ShaderManagerTexture; index: number };

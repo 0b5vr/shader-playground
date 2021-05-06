@@ -40,27 +40,14 @@ export class ShaderManager {
   private _layers: ShaderManagerLayer[] = [];
   public get layers(): ShaderManagerLayer[] { return this._layers; }
 
-  public get width(): number { return this._canvas?.width || -1; }
-  public set width( w: number ) {
-    if ( !this._canvas ) {
-      throw new Error( 'Canvas is not attached' );
-    }
-
-    this._canvas.width = w;
-
-    this.__emit( 'changeResolution', { width: this.width, height: this.height } );
+  private __screenLayer: ShaderManagerLayer | null = null;
+  public get screenLayer(): ShaderManagerLayer | null {
+    return this.__screenLayer;
   }
+
+  public get width(): number { return this._canvas?.width || -1; }
 
   public get height(): number { return this._canvas?.height || -1; }
-  public set height( h: number ) {
-    if ( !this._canvas ) {
-      throw new Error( 'Canvas is not attached' );
-    }
-
-    this._canvas.height = h;
-
-    this.__emit( 'changeResolution', { width: this.width, height: this.height } );
-  }
 
   private _beginDate = 0.001 * Date.now();
   private _handleResize?: () => void;
@@ -74,12 +61,28 @@ export class ShaderManager {
     return !!this._canvas;
   }
 
+  public setResolution( width: number, height: number ): void {
+    const canvas = this._canvas;
+
+    if ( !canvas ) {
+      throw new Error( 'Canvas is not attached' );
+    }
+
+    canvas.width = width;
+    canvas.height = height;
+
+    this.__emit( 'changeResolution', { width, height } );
+  }
+
   public attachCanvas( canvas: HTMLCanvasElement ): void {
     this._canvas = canvas;
     this._canvas.width = 256;
     this._canvas.height = 256;
 
-    const gl = this._gl = this._canvas.getContext( 'webgl2', { premultipliedAlpha: true } )!;
+    const gl = this._gl = this._canvas.getContext(
+      'webgl2',
+      { premultipliedAlpha: true, antialias: false }
+    )!;
     const glCat = this._glCat = new GLCat( gl );
     this._gpuTimer = new GPUTimer( gl );
 
@@ -95,14 +98,24 @@ export class ShaderManager {
     window.addEventListener( 'resize', this._handleResize );
   }
 
+  /**
+   * @param index -1 to unset
+   */
+  public setScreenLayer( index: number ): void {
+    const layer = index !== -1 ? this._layers[ index ] : null;
+    this.__screenLayer = layer;
+
+    this.__emit( 'changeScreenLayer', { index, layer } );
+  }
+
   public loadPreset( preset: ShaderManagerPreset ): void {
     this.clearLayers();
 
-    this.width = preset.width;
-    this.height = preset.height;
+    this.setResolution( preset.width, preset.height );
 
-    preset.layers.forEach( ( { code, textures } ) => {
-      const layer = this.createLayer();
+    preset.layers.forEach( ( { name, code, textures } ) => {
+      const layer = this.createLayer( name );
+      layer.setResolution( preset.width, preset.height );
       layer.compileShader( code );
 
       textures?.forEach( ( { name, url, wrap, filter } ) => {
@@ -117,10 +130,14 @@ export class ShaderManager {
         }
       } );
     } );
+
+    this.setScreenLayer(
+      preset.layers.findIndex( ( layer ) => layer.name === preset.screenLayer ),
+    );
   }
 
-  public createLayer(): ShaderManagerLayer {
-    const layer = new ShaderManagerLayer( this );
+  public createLayer( name: string ): ShaderManagerLayer {
+    const layer = new ShaderManagerLayer( this, name );
     const index = this._layers.length;
 
     this._layers.push( layer );
@@ -132,6 +149,10 @@ export class ShaderManager {
 
   public deleteLayer( index: number ): void {
     const layer = this._layers[ index ];
+
+    if ( this.screenLayer === layer ) {
+      this.setScreenLayer( -1 );
+    }
 
     this._layers.splice( index, 1 );
 
@@ -221,13 +242,23 @@ export class ShaderManager {
     }
 
     gl.viewport( 0, 0, canvas.width, canvas.height );
-    glCat.clear( 0.0, 0.0, 0.0, 0.0 );
 
     this._layers.forEach( ( layer ) => {
       if ( layer.isReady ) {
         layer.render();
       }
     } );
+
+    if ( this.__screenLayer != null ) {
+      glCat.blitFramebuffer(
+        this.__screenLayer.framebuffer,
+        null,
+        {
+          srcViewport: [ 0, 0, canvas.width, canvas.height ],
+          dstViewport: [ 0, 0, canvas.width, canvas.height ],
+        }
+      );
+    }
 
     gl.flush();
   }
@@ -246,6 +277,7 @@ update();
 
 export interface ShaderManagerEvents {
   changeResolution: { width: number; height: number };
+  changeScreenLayer: { layer: ShaderManagerLayer | null; index: number };
   addLayer: { layer: ShaderManagerLayer; index: number };
   deleteLayer: { layer: ShaderManagerLayer; index: number };
 }
