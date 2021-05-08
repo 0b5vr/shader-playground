@@ -71,6 +71,10 @@ export class ShaderManager {
     canvas.width = width;
     canvas.height = height;
 
+    this._layers.forEach( ( layer ) => {
+      layer.setResolution( width, height );
+    } );
+
     this.__emit( 'changeResolution', { width, height } );
   }
 
