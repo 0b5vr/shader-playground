@@ -150,6 +150,8 @@ export class ShaderManager {
     this.setScreenLayer(
       preset.layers.findIndex( ( layer ) => layer.name === preset.screenLayer ),
     );
+
+    this.rewind();
   }
 
   public createLayer( name: string ): ShaderManagerLayer {
