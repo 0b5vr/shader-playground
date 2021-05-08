@@ -28,7 +28,7 @@ export const Resolution = (): JSX.Element => {
   const dispatch = useDispatch();
 
   const handleChangeWidth = ( event: React.ChangeEvent<HTMLInputElement> ): void => {
-    const value = event.target.value as any as number;
+    const value = parseInt( event.target.value );
     if ( 0 < value ) {
       SHADERMAN.setResolution( value, SHADERMAN.height );
       dispatch( {
@@ -40,7 +40,7 @@ export const Resolution = (): JSX.Element => {
   };
 
   const handleChangeHeight = ( event: React.ChangeEvent<HTMLInputElement> ): void => {
-    const value = event.target.value as any as number;
+    const value = parseInt( event.target.value );
     if ( 0 < value ) {
       SHADERMAN.setResolution( SHADERMAN.width, value );
       dispatch( {

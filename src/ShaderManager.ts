@@ -13,14 +13,11 @@ export class ShaderManager {
   private _deltaTime = 0.0;
   public get deltaTime(): number { return this._deltaTime; }
 
+  private __frame = 0;
+  public get frame(): number { return this.__frame; }
+
   private _timeMod = 300.0;
   public get timeMod(): number { return this._timeMod; }
-  public set timeMod( mod: number ) {
-    if ( mod <= 0.0 ) {
-      throw new Error( 'timeMod does not accept negative numbers ?????? what' );
-    }
-    this._timeMod = mod;
-  }
 
   private _canvas?: HTMLCanvasElement;
   public get canvas(): HTMLCanvasElement | undefined { return this._canvas; }
@@ -59,6 +56,21 @@ export class ShaderManager {
 
   public get isReady(): boolean {
     return !!this._canvas;
+  }
+
+  public rewind(): void {
+    this._time = 0.0;
+    this._beginDate = 0.001 * Date.now();
+    this.__frame = 0;
+  }
+
+  public setTimeMod( timeMod: number ): void {
+    if ( timeMod <= 0.0 ) {
+      throw new Error( 'timeMod does not accept negative numbers ?????? what' );
+    }
+    this._timeMod = timeMod;
+
+    this.__emit( 'changeTimeMod', { timeMod } );
   }
 
   public setResolution( width: number, height: number ): void {
@@ -216,7 +228,7 @@ export class ShaderManager {
 
   public render( {
     time = undefined as ( number | undefined ),
-    deltaTime = undefined as ( number | undefined )
+    deltaTime = undefined as ( number | undefined ),
   } = {} ): void {
     const prevTime = this._time;
 
@@ -225,9 +237,9 @@ export class ShaderManager {
     } else {
       const now = 0.001 * Date.now();
       this._time = now - this._beginDate;
-      if ( this._timeMod < this._time ) {
-        this._time -= this._timeMod;
+      while ( this._timeMod < this._time ) {
         this._beginDate += this._timeMod;
+        this._time = now - this._beginDate;
       }
     }
 
@@ -265,6 +277,14 @@ export class ShaderManager {
     }
 
     gl.flush();
+
+    this.__emit( 'update', {
+      time: this._time,
+      deltaTime: this._deltaTime,
+      frame: this.__frame,
+    } );
+
+    this.__frame ++;
   }
 }
 
@@ -280,6 +300,8 @@ function update(): void {
 update();
 
 export interface ShaderManagerEvents {
+  update: { time: number; deltaTime: number; frame: number };
+  changeTimeMod: { timeMod: number };
   changeResolution: { width: number; height: number };
   changeScreenLayer: { layer: ShaderManagerLayer | null; index: number };
   addLayer: { layer: ShaderManagerLayer; index: number };

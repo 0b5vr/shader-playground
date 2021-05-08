@@ -4,6 +4,10 @@ import { produce } from 'immer';
 
 // == state ========================================================================================
 export interface State {
+  time: number;
+  deltaTime: number;
+  frame: number;
+  timeMod: number;
   width: number;
   height: number;
   selectedLayerIndex: number | null;
@@ -25,6 +29,10 @@ export interface State {
 }
 
 export const initialState: Readonly<State> = {
+  time: 0.0,
+  deltaTime: 0.0,
+  frame: 0,
+  timeMod: 0.0,
   width: 0,
   height: 0,
   selectedLayerIndex: null,
@@ -34,6 +42,14 @@ export const initialState: Readonly<State> = {
 
 // == action =======================================================================================
 export type Action = {
+  type: 'ShaderManager/UpdateTime';
+  time: number;
+  deltaTime: number;
+  frame: number;
+} | {
+  type: 'ShaderManager/ChangeTimeMod';
+  timeMod: number;
+} | {
   type: 'ShaderManager/ChangeResolution';
   width: number;
   height: number;
@@ -103,7 +119,13 @@ export type Action = {
 // == reducer ======================================================================================
 export const reducer: Reducer<State, Action> = ( state = initialState, action ) => {
   return produce( state, ( newState: State ) => {
-    if ( action.type === 'ShaderManager/ChangeResolution' ) {
+    if ( action.type === 'ShaderManager/UpdateTime' ) {
+      newState.time = action.time;
+      newState.deltaTime = action.deltaTime;
+      newState.frame = action.frame;
+    } else if ( action.type === 'ShaderManager/ChangeTimeMod' ) {
+      newState.timeMod = action.timeMod;
+    } else if ( action.type === 'ShaderManager/ChangeResolution' ) {
       newState.width = action.width;
       newState.height = action.height;
     } else if ( action.type === 'ShaderManager/SelectLayer' ) {

@@ -107,8 +107,29 @@ export const ShaderManagerStateListener = (): JSX.Element => {
 
       SHADERMAN.on( 'addLayer', addLayer );
 
+      dispatch( {
+        type: 'ShaderManager/ChangeTimeMod',
+        timeMod: SHADERMAN.timeMod,
+      } );
+
       SHADERMAN.layers.forEach( ( layer, index ) => {
         addLayer( { layer, index } );
+      } );
+
+      SHADERMAN.on( 'update', ( { time, deltaTime, frame } ) => {
+        dispatch( {
+          type: 'ShaderManager/UpdateTime',
+          time,
+          deltaTime,
+          frame,
+        } );
+      } );
+
+      SHADERMAN.on( 'changeTimeMod', ( { timeMod } ) => {
+        dispatch( {
+          type: 'ShaderManager/ChangeTimeMod',
+          timeMod,
+        } );
       } );
 
       SHADERMAN.on( 'deleteLayer', ( { index } ) => {

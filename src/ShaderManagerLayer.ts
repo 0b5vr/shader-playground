@@ -145,7 +145,7 @@ export class ShaderManagerLayer {
   }
 
   public render(): void {
-    const { time, deltaTime, width, height, gl, glCat, gpuTimer } = this._manager;
+    const { frame, time, deltaTime, width, height, gl, glCat, gpuTimer } = this._manager;
 
     if ( !gl || !glCat || !gpuTimer ) {
       throw new Error( 'Canvas is not attached to the ShaderManager' );
@@ -162,6 +162,7 @@ export class ShaderManagerLayer {
 
       program.attribute( 'p', this._manager.bufferQuad!, 2 );
 
+      program.uniform( 'frame', '1i', frame );
       program.uniform( 'time', '1f', time );
       program.uniform( 'deltaTime', '1f', deltaTime );
       program.uniform( 'resolution', '2f', width, height );
