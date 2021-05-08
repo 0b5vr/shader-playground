@@ -56,13 +56,14 @@ export const Editor = ( { className }: EditorProps ): JSX.Element => {
     [ hasEdited ]
   );
 
-  const handleExec = useRef<() => void>();
-  handleExec.current = (): void => {
+  const handleExec = useRef<( rewind: boolean ) => void>();
+  handleExec.current = ( rewind: boolean ): void => {
     const actualLayer = ( layerIndex != null ) ? SHADERMAN.layers[ layerIndex ] : null;
     if ( !actualLayer || code == null ) { return; }
 
     try {
       actualLayer.compileShader( code );
+      if ( rewind ) { SHADERMAN.rewind(); }
     } catch ( e ) {
       console.error( e ); // TODO: more proper error output
     }
@@ -84,7 +85,12 @@ export const Editor = ( { className }: EditorProps ): JSX.Element => {
     {
       name: 'Execute',
       bindKey: { win: 'Ctrl-s', mac: 'Command-s' },
-      exec: () => handleExec.current!()
+      exec: () => handleExec.current?.( false ),
+    },
+    {
+      name: 'Rewind',
+      bindKey: { win: 'Ctrl-r', mac: 'Command-r' },
+      exec: () => handleExec.current?.( true ),
     }
   ];
 
