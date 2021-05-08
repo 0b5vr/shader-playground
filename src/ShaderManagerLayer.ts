@@ -4,6 +4,7 @@ import { EventEmittable } from './utils/EventEmittable';
 import { ShaderManager } from './ShaderManager';
 import { ShaderManagerTexture } from './ShaderManagerTexture';
 import { applyMixins } from './utils/applyMixins';
+import default3Vert from './shaders/default3.vert';
 import defaultFrag from './shaders/default.frag';
 import defaultVert from './shaders/default.vert';
 
@@ -115,7 +116,11 @@ export class ShaderManagerLayer {
     }
 
     try {
-      const program = glCat.lazyProgram( defaultVert, code );
+      const isES3 = code.startsWith( '#version 300 es' );
+      const program = glCat.lazyProgram(
+        isES3 ? default3Vert : defaultVert,
+        code,
+      );
 
       if ( program ) {
         const prevProgram = this._program;
