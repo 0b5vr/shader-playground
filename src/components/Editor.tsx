@@ -9,31 +9,23 @@ import 'ace-builds/src-noconflict/theme-monokai'; // eslint-disable-line
 
 // == styles =======================================================================================
 const StyledEditor = styled( AceEditor )`
-  width: 100%;
-  height: 100%;
-`;
-
-const Root = styled.div`
-  margin: 0;
-  padding: 0;
+  position: absolute;
   width: 100%;
   height: 100%;
 `;
 
 // == element ======================================================================================
 export interface EditorProps {
-  className?: string;
+  layerIndex: number;
 }
 
-export const Editor = ( { className }: EditorProps ): JSX.Element => {
-  const { layerIndex, code } = useSelector( ( state ) => {
-    const layerIndex = state.shaderManager.selectedLayerIndex;
-    const layer = ( layerIndex != null )
-      ? state.shaderManager.layers[ layerIndex ]
-      : null;
+export const Editor = ( { layerIndex }: EditorProps ): JSX.Element => {
+  const { isSelected, code } = useSelector( ( state ) => {
+    const isSelected = state.shaderManager.selectedLayerIndex === layerIndex;
+    const layer = state.shaderManager.layers[ layerIndex ];
     const code = layer?.code;
 
-    return { layerIndex, code };
+    return { isSelected, code };
   } );
   const dispatch = useDispatch();
 
@@ -94,18 +86,17 @@ export const Editor = ( { className }: EditorProps ): JSX.Element => {
     }
   ];
 
-  return <>
-    <Root className={ className }>
-      <StyledEditor
-        mode="glsl"
-        theme="monokai"
-        width=""
-        height=""
-        tabSize={ 2 }
-        value={ code }
-        onChange={ handleChange }
-        commands={ commands }
-      />
-    </Root>
-  </>;
+  return <StyledEditor
+    mode="glsl"
+    theme="monokai"
+    width=""
+    height=""
+    tabSize={ 2 }
+    value={ code }
+    onChange={ handleChange }
+    commands={ commands }
+    style={ {
+      visibility: isSelected ? 'visible' : 'hidden',
+    } }
+  />;
 };

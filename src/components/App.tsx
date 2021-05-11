@@ -1,7 +1,7 @@
 import { Action, State } from '../states/store';
 import styled, { createGlobalStyle } from 'styled-components';
 import { Colors } from '../constants/Colors';
-import { Editor } from './Editor';
+import { Editors } from './Editors';
 import { Metrics } from '../constants/Metrics';
 import { PaneList } from './PaneList';
 import { Provider } from 'react-redux';
@@ -25,7 +25,7 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
-const StyledEditor = styled( Editor )`
+const StyledEditors = styled( Editors )`
   width: ${ Metrics.editorWidth };
   height: 100%;
   position: absolute;
@@ -59,7 +59,7 @@ const OutOfContextApp = (): JSX.Element => {
     <Root>
       <ShaderManagerStateListener />
       <StyledWorkspace />
-      <StyledEditor />
+      <StyledEditors />
       <PaneList />
     </Root>
   </>;
