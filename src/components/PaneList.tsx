@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-key */
 
 import React, { useCallback, useState } from 'react';
+import { Layers } from './Layers';
 import { Pane } from './Pane';
 import { Performance } from './Performance';
 import { Presets } from './Presets';
@@ -17,6 +18,7 @@ const PaneList = (): JSX.Element => {
     'record',
     'presets',
     'performance',
+    'layers',
     'textures',
   ] );
 
@@ -77,12 +79,21 @@ const PaneList = (): JSX.Element => {
     >
       <Performance />
     </Pane>,
+    'layers': <Pane
+      key="layers"
+      paneKey="layers"
+      title="Layers"
+      onClick={ handleClick }
+      initPosition={ { left: 0, top: 100 } }
+    >
+      <Layers />
+    </Pane>,
     'textures': <Pane
       key="textures"
       paneKey="textures"
       title="Textures"
       onClick={ handleClick }
-      initPosition={ { left: 0, top: 100 } }
+      initPosition={ { left: 0, top: 120 } }
     >
       <Textures />
     </Pane>,

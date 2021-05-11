@@ -114,7 +114,7 @@ export const Texture = ( {
       const layer = SHADERMAN.layers[ layerIndex ];
       layer.textures[ textureIndex ].name = event.target.value;
     },
-    [ layerIndex, textureIndex, name ]
+    [ layerIndex, textureIndex ],
   );
 
   const handleChangeWrap = useCallback(
@@ -122,7 +122,7 @@ export const Texture = ( {
       const layer = SHADERMAN.layers[ layerIndex ];
       layer.textures[ textureIndex ].wrap = event.target.value as ShaderManagerTextureWrap;
     },
-    [ layerIndex, textureIndex, name ]
+    [ layerIndex, textureIndex ],
   );
 
   const handleChangeFilter = useCallback(
@@ -130,7 +130,7 @@ export const Texture = ( {
       const layer = SHADERMAN.layers[ layerIndex ];
       layer.textures[ textureIndex ].filter = event.target.value as ShaderManagerTextureFilter;
     },
-    [ layerIndex, textureIndex, name ]
+    [ layerIndex, textureIndex ],
   );
 
   const handleClickDelete = useCallback(

@@ -11,7 +11,9 @@ export interface State {
   width: number;
   height: number;
   selectedLayerIndex: number | null;
+  screenLayerIndex: number | null;
   layers: Array<{
+    name: string;
     code: string;
     isDirty: boolean;
     textures: Array<{
@@ -36,6 +38,7 @@ export const initialState: Readonly<State> = {
   width: 0,
   height: 0,
   selectedLayerIndex: null,
+  screenLayerIndex: null,
   layers: [],
   isRecording: false,
 };
@@ -57,6 +60,13 @@ export type Action = {
   type: 'ShaderManager/SelectLayer';
   layerIndex: number | null;
 } | {
+  type: 'ShaderManager/ChangeScreenLayer';
+  layerIndex: number | null;
+} | {
+  type: 'ShaderManager/ChangeLayerName';
+  layerIndex: number;
+  name: string;
+} | {
   type: 'ShaderManager/ChangeLayerCode';
   layerIndex: number;
   code: string;
@@ -74,6 +84,7 @@ export type Action = {
 } | {
   type: 'ShaderManager/AddLayer';
   layerIndex: number;
+  name: string;
   code: string;
 } | {
   type: 'ShaderManager/DeleteLayer';
@@ -130,6 +141,10 @@ export const reducer: Reducer<State, Action> = ( state = initialState, action ) 
       newState.height = action.height;
     } else if ( action.type === 'ShaderManager/SelectLayer' ) {
       newState.selectedLayerIndex = action.layerIndex;
+    } else if ( action.type === 'ShaderManager/ChangeScreenLayer' ) {
+      newState.screenLayerIndex = action.layerIndex;
+    } else if ( action.type === 'ShaderManager/ChangeLayerName' ) {
+      newState.layers[ action.layerIndex ].name = action.name;
     } else if ( action.type === 'ShaderManager/ChangeLayerCode' ) {
       newState.layers[ action.layerIndex ].code = action.code;
 
@@ -137,9 +152,12 @@ export const reducer: Reducer<State, Action> = ( state = initialState, action ) 
         newState.layers[ action.layerIndex ].isDirty = true;
       }
     } else if ( action.type === 'ShaderManager/UpdateLayerGPUTime' ) {
-      newState.layers[ action.layerIndex ].gpuTime = action.gpuTime;
+      if ( state.layers[ action.layerIndex ] ) { // async funny
+        newState.layers[ action.layerIndex ].gpuTime = action.gpuTime;
+      }
     } else if ( action.type === 'ShaderManager/AddLayer' ) {
       newState.layers[ action.layerIndex ] = {
+        name: action.name,
         code: action.code,
         isDirty: false,
         textures: [],

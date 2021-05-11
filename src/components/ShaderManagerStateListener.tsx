@@ -68,7 +68,16 @@ export const ShaderManagerStateListener = (): JSX.Element => {
         dispatch( {
           type: 'ShaderManager/AddLayer',
           layerIndex: index,
-          code: layer.code ?? ''
+          name: layer.name,
+          code: layer.code ?? '',
+        } );
+
+        layer.on( 'changeName', ( { name } ) => {
+          dispatch( {
+            type: 'ShaderManager/ChangeLayerName',
+            layerIndex,
+            name,
+          } );
         } );
 
         layer.on( 'addTexture', addTexture );
@@ -114,6 +123,13 @@ export const ShaderManagerStateListener = (): JSX.Element => {
 
       SHADERMAN.layers.forEach( ( layer, index ) => {
         addLayer( { layer, index } );
+      } );
+
+      SHADERMAN.on( 'changeScreenLayer', ( { index } ) => {
+        dispatch( {
+          type: 'ShaderManager/ChangeScreenLayer',
+          layerIndex: index,
+        } );
       } );
 
       SHADERMAN.on( 'update', ( { time, deltaTime, frame } ) => {
