@@ -4,23 +4,22 @@
 // Blossom is a framework for creating 4k executable graphics, authored by yx
 // https://github.com/lunasorcery/Blossom
 
+// This is `draw.frag` .
+// You would want to draw something here.
+// The result will be accumulated in `layerAccumulate` and will be presented using `layerPresent`.
+
 // == template codes ===============================================================================
 
 precision highp float;
 
 uniform int frame;
-uniform float time;
 uniform vec2 resolution;
-uniform sampler2D layer0;
 
 out vec4 fragColor;
 
 #define iFrame frame
 #define iResolution vec4(resolution,resolution/resolution.yx)
 #define gl_FragColor fragColor
-
-// accumulate using backbuffer
-#define ACCUM gl_FragColor=frame<1?gl_FragColor:mix(texture(layer0,gl_FragCoord.xy/resolution),gl_FragColor,1.0/float(frame));
 
 // == your code goes below =========================================================================
 
@@ -53,10 +52,10 @@ vec4 map( vec3 p ) {
 }
 
 void main() {
+  seed = fs( gl_FragCoord.x + fs( gl_FragCoord.y + fs( float( iFrame ) ) ) );
+
   vec2 p = ( gl_FragCoord.xy + hash2() - 0.5 ) / iResolution.xy - 0.5;
   p.x *= iResolution.z;
-
-  seed = fs( p.x + fs( p.y + fs( float( iFrame ) ) ) );
 
   vec3 ro = vec3( 0, 0, 5 );
   vec3 rd = normalize( vec3( p, -1 ) );
@@ -93,9 +92,4 @@ void main() {
   }
 
   gl_FragColor = vec4( col, 1 );
-
-  // remove on blossom side!
-  #ifdef ACCUM
-    ACCUM
-  #endif
 }

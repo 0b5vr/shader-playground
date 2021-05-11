@@ -97,10 +97,11 @@ export class ShaderManager {
 
     const gl = this._gl = this._canvas.getContext(
       'webgl2',
-      { premultipliedAlpha: true, antialias: false }
+      { premultipliedAlpha: false, antialias: false }
     )!;
     const glCat = this._glCat = new GLCat( gl );
     this._gpuTimer = new GPUTimer( gl );
+    gl.blendFunc( gl.ONE, gl.ZERO );
 
     this._bufferQuad = glCat.createBuffer()!;
     this._bufferQuad.setVertexbuffer( new Float32Array( [ -1, -1, 1, -1, -1, 1, 1, 1 ] ) );

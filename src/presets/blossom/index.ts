@@ -1,14 +1,24 @@
 import { ShaderManagerPreset } from '../../ShaderManagerPreset';
-import fragMain from './main.frag';
+import fragAccumulate from './accumulate.frag';
+import fragDraw from './draw.frag';
+import fragPresent from './present.frag';
 
 const preset: ShaderManagerPreset = {
   width: 1280,
   height: 720,
-  screenLayer: 'layer0',
+  screenLayer: 'layerPresent',
   layers: [
     {
-      name: 'layer0',
-      code: fragMain,
+      name: 'layerDraw',
+      code: fragDraw,
+    },
+    {
+      name: 'layerAccumulate',
+      code: fragAccumulate,
+    },
+    {
+      name: 'layerPresent',
+      code: fragPresent,
     },
   ],
 };
