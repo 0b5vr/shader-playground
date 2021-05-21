@@ -46,6 +46,7 @@ export const Record = (): JSX.Element => {
 
   const [ fps, setFps ] = useState( 60 );
   const [ frames, setFrames ] = useState( 60 );
+  const [ each, setEach ] = useState( 1 );
 
   const handleChangeFrames = useCallback(
     ( event: React.ChangeEvent<HTMLInputElement> ): void => {
@@ -67,6 +68,16 @@ export const Record = (): JSX.Element => {
     []
   );
 
+  const handleChangeEach = useCallback(
+    ( event: React.ChangeEvent<HTMLInputElement> ): void => {
+      const value = event.target.value as any as number;
+      if ( 0 < value ) {
+        setEach( Math.floor( value ) );
+      }
+    },
+    []
+  );
+
   const handleClickButtonRecord = useCallback(
     async (): Promise<void> => {
       if ( isRecording ) { return; }
@@ -74,13 +85,13 @@ export const Record = (): JSX.Element => {
       dispatch( {
         type: 'ShaderManager/StartRecording',
       } );
-      const blob = await SHADERMAN.record( { fps, frames } );
+      const blob = await SHADERMAN.record( { fps, frames, each } );
       downloadBlob( blob, Date.now() + '.zip' );
       dispatch( {
         type: 'ShaderManager/EndRecording',
       } );
     },
-    [ isRecording, fps, frames ]
+    [ isRecording, fps, frames, each ]
   );
 
   return <>
@@ -96,6 +107,12 @@ export const Record = (): JSX.Element => {
         type="number"
         value={ fps }
         onChange={ handleChangeFPS }
+      />
+      <InputLabel>Each</InputLabel>
+      <CommonInput
+        type="number"
+        value={ each }
+        onChange={ handleChangeEach }
       />
       <ButtonRecord
         isRecording={ isRecording }

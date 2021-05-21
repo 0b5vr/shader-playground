@@ -207,19 +207,24 @@ export class ShaderManager {
    */
   public async record( {
     frames = 60,
-    fps = 60
+    fps = 60,
+    each = 1,
   } = {} ): Promise<Blob> {
     this._isRecording = true;
+    this.rewind();
 
     const zip = new JSZip();
 
     const deltaTime = 1.0 / fps;
-    for ( let iFrame = 0; iFrame < frames; iFrame ++ ) {
-      const time = iFrame * deltaTime;
+    for ( let iFrame = 0; iFrame < frames * each; iFrame ++ ) {
+      const time = iFrame / fps;
       this.render( { time, deltaTime } );
-      const blob = await this.toBlob();
-      const filename = String( iFrame ).padStart( 5, '0' ) + '.png';
-      zip.file( filename, blob );
+
+      if ( ( iFrame + 1 ) % each === 0 ) {
+        const blob = await this.toBlob();
+        const filename = String( iFrame ).padStart( 5, '0' ) + '.png';
+        zip.file( filename, blob );
+      }
     }
 
     const blob = zip.generateAsync( { type: 'blob' } );
