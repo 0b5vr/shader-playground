@@ -146,6 +146,7 @@ export class ShaderManagerLayer {
 
   public render(): void {
     const { frame, time, deltaTime, width, height, gl, glCat, gpuTimer } = this._manager;
+    const mousePosition = this._manager.mousePosition;
 
     if ( !gl || !glCat || !gpuTimer ) {
       throw new Error( 'Canvas is not attached to the ShaderManager' );
@@ -166,6 +167,7 @@ export class ShaderManagerLayer {
       program.uniform( 'time', '1f', time );
       program.uniform( 'deltaTime', '1f', deltaTime );
       program.uniform( 'resolution', '2f', width, height );
+      program.uniform( 'mouse', '2f', mousePosition.x, 1.0 - mousePosition.y );
 
       this._textures.forEach( ( { name, texture } ) => {
         if ( this.__samplersUsed.indexOf( name ) !== -1 ) {

@@ -2,6 +2,7 @@ import { GLCat, GLCatBuffer } from '@fms-cat/glcat-ts';
 import { EventEmittable } from './utils/EventEmittable';
 import { GPUTimer } from './utils/GPUTimer';
 import JSZip from 'jszip';
+import { MouseHandler } from './MouseHandler';
 import { ShaderManagerLayer } from './ShaderManagerLayer';
 import { ShaderManagerPreset } from './ShaderManagerPreset';
 import { applyMixins } from './utils/applyMixins';
@@ -45,6 +46,13 @@ export class ShaderManager {
   public get width(): number { return this._canvas?.width || -1; }
 
   public get height(): number { return this._canvas?.height || -1; }
+
+  private __mousePosition = { x: 0, y: 0 };
+  public get mousePosition(): { x: number; y: number } {
+    return this.__mousePosition;
+  }
+
+  private __mouseHandler?: MouseHandler;
 
   private _beginDate = 0.001 * Date.now();
   private _handleResize?: () => void;
@@ -94,6 +102,9 @@ export class ShaderManager {
     this._canvas = canvas;
     this._canvas.width = 256;
     this._canvas.height = 256;
+
+    this.__mouseHandler = new MouseHandler( canvas );
+    this.__mouseHandler.on( 'move', ( { x, y } ) => this.__mousePosition = { x, y } );
 
     const gl = this._gl = this._canvas.getContext(
       'webgl2',
