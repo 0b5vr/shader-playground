@@ -4,6 +4,7 @@ import blossom from './blossom';
 import colorDeficiencies from './color-deficiencies';
 import colorGrading from './color-grading';
 import cyclicNoise from './cyclic-noise';
+import pathtracer from './pathtracer';
 import raymarch from './raymarch';
 import raymarchSdf from './raymarch-sdf';
 import texture from './texture';
@@ -16,6 +17,7 @@ export const presets: { [ name: string ]: ShaderManagerPreset | undefined } = {
   colorDeficiencies,
   colorGrading,
   cyclicNoise,
+  pathtracer,
   raymarch,
   raymarchSdf,
   texture,
