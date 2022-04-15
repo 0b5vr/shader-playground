@@ -91,5 +91,5 @@ void main() {
       * exp( -0.1 * rl );
   }
 
-  gl_FragColor = vec4( col, 1 );
+  fragColor = vec4( col, 1 );
 }
