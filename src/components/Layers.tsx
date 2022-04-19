@@ -49,7 +49,7 @@ const Root = styled.div`
 `;
 
 // == element ======================================================================================
-export const Layers = (): JSX.Element => {
+export const Layers: React.FC = () => {
   const { layers, layerCount } = useSelector( ( state ) => {
     const layers = state.shaderManager.layers;
     const layerCount = layers.length;

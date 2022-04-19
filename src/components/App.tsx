@@ -62,7 +62,7 @@ const Root = styled.div`
 
 
 // == element ======================================================================================
-const OutOfContextApp = (): JSX.Element => {
+const OutOfContextApp: React.FC = () => {
   const editorWidth = useSelector( ( style ) => style.workspace.editorWidth );
 
   return <>
@@ -82,9 +82,9 @@ const OutOfContextApp = (): JSX.Element => {
   </>;
 };
 
-export const App = ( { store }: {
+export const App: React.FC<{
   store: Store<State, Action>;
-} ): JSX.Element => <>
+}> = ( { store } ) => <>
   <GlobalStyle />
   <Provider store={ store }>
     <OutOfContextApp />

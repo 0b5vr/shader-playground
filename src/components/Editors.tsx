@@ -7,12 +7,12 @@ import { useSelector } from '../states/store';
 const Root = styled.div``;
 
 // == element ======================================================================================
-export interface EditorsProps {
+interface Props {
   className?: string;
   style?: React.CSSProperties;
 }
 
-export const Editors = ( { className, style }: EditorsProps ): JSX.Element => {
+export const Editors: React.FC<Props> = ( { className, style } ) => {
   const { layerCount } = useSelector( ( state ) => {
     const layers = state.shaderManager.layers;
     const layerCount = layers.length;

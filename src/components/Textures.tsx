@@ -19,11 +19,11 @@ const Root = styled.div`
 `;
 
 // == element ======================================================================================
-export interface TexturesProps {
+interface Props {
   className?: string;
 }
 
-export const Textures = ( { className }: TexturesProps ): JSX.Element => {
+export const Textures: React.FC<Props> = ( { className } ) => {
   const { layerIndex, layer } = useSelector( ( state ) => {
     const layerIndex = state.shaderManager.selectedLayerIndex;
     const layer = ( layerIndex != null )

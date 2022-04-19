@@ -23,11 +23,11 @@ const StyledCodeMirror = styled( ReactCodeMirror )<{ visible: boolean }>`
 `;
 
 // == element ======================================================================================
-export interface EditorProps {
+interface Props {
   layerIndex: number;
 }
 
-export const Editor = ( { layerIndex }: EditorProps ): JSX.Element => {
+export const Editor: React.FC<Props> = ( { layerIndex } ) => {
   const { isSelected, code } = useSelector( ( state ) => {
     const isSelected = state.shaderManager.selectedLayerIndex === layerIndex;
     const layer = state.shaderManager.layers[ layerIndex ];

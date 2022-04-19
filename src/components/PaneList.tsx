@@ -11,7 +11,7 @@ import { Textures } from './Textures';
 import { Time } from './Time';
 
 // == element ======================================================================================
-const PaneList = (): JSX.Element => {
+const PaneList: React.FC = () => {
   const [ order, setOrder ] = useState( [
     'time',
     'resolution',
@@ -33,7 +33,7 @@ const PaneList = (): JSX.Element => {
     [ order ]
   );
 
-  const panes: { [ key: string ]: JSX.Element } = {
+  const panes: { [ key: string ]: React.ReactNode } = {
     'time': <Pane
       key="time"
       paneKey="time"

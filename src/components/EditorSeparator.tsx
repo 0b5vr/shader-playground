@@ -14,7 +14,7 @@ interface Props {
   style?: React.CSSProperties;
 }
 
-export const EditorSeparator = ( { className, style }: Props ): JSX.Element => {
+export const EditorSeparator: React.FC<Props> = ( { className, style } ) => {
   const editorWidth = useSelector( ( state ) => state.workspace.editorWidth );
   const [ editorWidthMax, setEditorWidthMax ] = useState( 0 );
   const dispatch = useDispatch();

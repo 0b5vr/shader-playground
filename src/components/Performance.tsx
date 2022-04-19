@@ -8,7 +8,7 @@ const Root = styled.div`
 `;
 
 // == element ======================================================================================
-export const Performance = (): JSX.Element => {
+export const Performance: React.FC = () => {
   const gpuTime = useSelector( ( state ) => {
     const layerIndex = state.shaderManager.selectedLayerIndex;
     const layer = ( layerIndex != null )

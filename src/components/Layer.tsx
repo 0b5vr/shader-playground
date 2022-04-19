@@ -56,13 +56,11 @@ const Root = styled.div<{ isSelected: boolean }>`
 `;
 
 // == element ======================================================================================
-export interface TextureProps {
+interface Props {
   layerIndex: number;
 }
 
-export const Layer = ( {
-  layerIndex,
-}: TextureProps ): JSX.Element => {
+export const Layer: React.FC<Props> = ( { layerIndex } ) => {
   const { isSelected, isScreen } = useSelector( ( state ) => ( {
     isSelected: state.shaderManager.selectedLayerIndex === layerIndex,
     isScreen: state.shaderManager.screenLayerIndex === layerIndex,

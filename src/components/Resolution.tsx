@@ -20,7 +20,7 @@ const Root = styled.div`
 `;
 
 // == element ======================================================================================
-export const Resolution = (): JSX.Element => {
+export const Resolution: React.FC = () => {
   const { width, height } = useSelector( ( state ) => ( {
     width: state.shaderManager.width,
     height: state.shaderManager.height,

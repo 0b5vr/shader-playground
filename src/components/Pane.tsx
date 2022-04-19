@@ -36,8 +36,8 @@ const Root = styled.div`
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 1.0);
 `;
 
-// == params =======================================================================================
-export interface PaneParams {
+// == element ======================================================================================
+interface Params {
   key: string;
   paneKey: string;
   title: string;
@@ -48,8 +48,7 @@ export interface PaneParams {
   className?: string;
 }
 
-// == element ======================================================================================
-const Pane = ( params: PaneParams ): JSX.Element => {
+const Pane: React.FC<Params> = ( params ) => {
   const [ position, setPosition ] = useState( params.initPosition ?? {
     left: 0,
     top: 0,

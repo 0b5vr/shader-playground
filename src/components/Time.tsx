@@ -24,7 +24,7 @@ const Root = styled.div`
 `;
 
 // == element ======================================================================================
-export const Time = (): JSX.Element => {
+export const Time: React.FC = () => {
   const { time, deltaTime, frame } = useSelector( ( state ) => ( {
     time: state.shaderManager.time,
     deltaTime: state.shaderManager.deltaTime,

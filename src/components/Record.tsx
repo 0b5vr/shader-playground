@@ -38,7 +38,7 @@ const Root = styled.div`
 `;
 
 // == element ======================================================================================
-export const Record = (): JSX.Element => {
+export const Record: React.FC = () => {
   const { isRecording } = useSelector( ( state ) => ( {
     isRecording: state.shaderManager.isRecording,
   } ) );

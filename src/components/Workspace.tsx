@@ -31,12 +31,12 @@ const Root = styled.div`
 `;
 
 // == element ======================================================================================
-export interface WorkspaceProps {
+interface Props {
   className?: string;
   style?: React.CSSProperties;
 }
 
-export const Workspace = ( { className, style }: WorkspaceProps ): JSX.Element => {
+export const Workspace: React.FC<Props> = ( { className, style } ) => {
   const { view } = useSelector( ( state ) => ( {
     view: state.workspace.view,
   } ) );

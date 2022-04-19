@@ -5,7 +5,7 @@ import { ShaderManagerTexture } from '../ShaderManagerTexture';
 import { useDispatch } from '../states/store';
 
 // == component ====================================================================================
-export const ShaderManagerStateListener = (): JSX.Element => {
+export const ShaderManagerStateListener: React.FC = () => {
   const dispatch = useDispatch();
 
   useEffect(

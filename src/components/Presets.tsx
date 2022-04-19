@@ -37,7 +37,7 @@ const Root = styled.div`
 `;
 
 // == element ======================================================================================
-export const Presets = (): JSX.Element => {
+export const Presets: React.FC = () => {
   const handleChangePresets = useCallback(
     async ( event: React.ChangeEvent<HTMLSelectElement> ): Promise<void> => {
       const value = event.target.value;
