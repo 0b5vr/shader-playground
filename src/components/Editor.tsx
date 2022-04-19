@@ -1,17 +1,21 @@
-import React, { useEffect, useRef, useState } from 'react';
+import './codemirror-themes/monokai-sharp.css';
+import 'codemirror/addon/comment/comment';
+import 'codemirror/keymap/sublime';
+import 'codemirror/lib/codemirror.css';
+import 'codemirror/mode/clike/clike';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from '../states/store';
-import AceEditor from 'react-ace';
+import CodeMirror from 'codemirror';
+import { Controlled as ReactCodeMirror } from 'react-codemirror2';
 import { SHADERMAN } from '../ShaderManager';
 import styled from 'styled-components';
 
-import 'ace-builds/src-noconflict/mode-glsl'; // eslint-disable-line
-import 'ace-builds/src-noconflict/theme-monokai'; // eslint-disable-line
-
 // == styles =======================================================================================
-const StyledEditor = styled( AceEditor )`
+const StyledCodeMirror = styled( ReactCodeMirror )<{ visible: boolean }>`
   position: absolute;
   width: 100%;
   height: 100%;
+  visibility: ${ ( { visible } ) => visible ? 'visible' : 'hidden' };
 `;
 
 // == element ======================================================================================
@@ -61,42 +65,51 @@ export const Editor = ( { layerIndex }: EditorProps ): JSX.Element => {
     }
   };
 
-  const handleChange = ( newValue: string ): void => {
-    if ( layerIndex == null ) { return; }
-
-    setHasEdited( true );
-    dispatch( {
-      type: 'ShaderManager/ChangeLayerCode',
-      layerIndex,
-      code: newValue,
-      markDirty: true,
-    } );
-  };
-
-  const commands = [
-    {
-      name: 'Execute',
-      bindKey: { win: 'Ctrl-s', mac: 'Command-s' },
-      exec: () => handleExec.current?.( false ),
+  const handleEditorDidMount = useCallback(
+    ( editor: CodeMirror.Editor ) => {
+      editor.addKeyMap( {
+        'Ctrl-S': () => {
+          handleExec.current?.( false );
+        },
+        'Ctrl-R': () => {
+          handleExec.current?.( true );
+        },
+      } );
     },
-    {
-      name: 'Rewind',
-      bindKey: { win: 'Ctrl-r', mac: 'Command-r' },
-      exec: () => handleExec.current?.( true ),
-    }
-  ];
+    [ handleExec ]
+  );
 
-  return <StyledEditor
-    mode="glsl"
-    theme="monokai"
-    width=""
-    height=""
-    tabSize={ 2 }
+  const handleBeforeChange = useCallback(
+    ( editor: CodeMirror.Editor, data: CodeMirror.EditorChange, value: string ) => {
+      setHasEdited( true );
+      dispatch( {
+        type: 'ShaderManager/ChangeLayerCode',
+        layerIndex,
+        code: value,
+        markDirty: true,
+      } );
+    },
+    []
+  );
+
+  const handleChange = useCallback(
+    () => {
+      // do nothing
+    },
+    []
+  );
+
+  return <StyledCodeMirror
     value={ code }
-    onChange={ handleChange }
-    commands={ commands }
-    style={ {
-      visibility: isSelected ? 'visible' : 'hidden',
+    options={ {
+      mode: 'x-shader/x-fragment',
+      keyMap: 'sublime',
+      theme: 'monokai-sharp',
+      lineNumbers: true,
     } }
+    editorDidMount={ handleEditorDidMount }
+    onBeforeChange={ handleBeforeChange }
+    onChange={ handleChange }
+    visible={ isSelected }
   />;
 };
