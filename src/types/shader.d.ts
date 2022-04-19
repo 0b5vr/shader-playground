@@ -1,9 +1,9 @@
-declare module '*.frag' {
+declare module '*.frag?raw' {
   const source: string;
   export default source;
 }
 
-declare module '*.vert' {
+declare module '*.vert?raw' {
   const source: string;
   export default source;
 }

@@ -1,7 +1,7 @@
 import { ShaderManagerPreset } from '../../ShaderManagerPreset';
-import fragAccumulate from './accumulate.frag';
-import fragDraw from './draw.frag';
-import fragPresent from './present.frag';
+import fragAccumulate from './accumulate.frag?raw';
+import fragDraw from './draw.frag?raw';
+import fragPresent from './present.frag?raw';
 import imgRandom from '../../images/-rgba256.png';
 import imgReference from './reference.png';
 

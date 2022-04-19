@@ -1,7 +1,7 @@
 import { ShaderManagerPreset } from '../../ShaderManagerPreset';
-import fragBlurH from './blur-h.frag';
-import fragBlurV from './blur-v.frag';
-import fragDry from './dry.frag';
+import fragBlurH from './blur-h.frag?raw';
+import fragBlurV from './blur-v.frag?raw';
+import fragDry from './dry.frag?raw';
 import imgLondon from '../../images/london.jpg';
 
 const preset: ShaderManagerPreset = {

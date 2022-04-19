@@ -1,5 +1,5 @@
 import { ShaderManagerPreset } from '../../ShaderManagerPreset';
-import fragMain from './main.frag';
+import fragMain from './main.frag?raw';
 import imgWhomst from '../../images/whomst.png';
 
 const preset: ShaderManagerPreset = {

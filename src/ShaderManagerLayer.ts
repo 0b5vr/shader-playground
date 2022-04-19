@@ -4,9 +4,9 @@ import { EventEmittable } from './utils/EventEmittable';
 import { ShaderManager } from './ShaderManager';
 import { ShaderManagerTexture } from './ShaderManagerTexture';
 import { applyMixins } from './utils/applyMixins';
-import default3Vert from './shaders/default3.vert';
-import defaultFrag from './shaders/default.frag';
-import defaultVert from './shaders/default.vert';
+import default3Vert from './shaders/default3.vert?raw';
+import defaultFrag from './shaders/default.frag?raw';
+import defaultVert from './shaders/default.vert?raw';
 
 export class ShaderManagerLayer {
   private _code?: string;

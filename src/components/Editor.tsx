@@ -16,6 +16,10 @@ const StyledCodeMirror = styled( ReactCodeMirror )<{ visible: boolean }>`
   width: 100%;
   height: 100%;
   visibility: ${ ( { visible } ) => visible ? 'visible' : 'hidden' };
+
+  .CodeMirror {
+    height: 100%;
+  }
 `;
 
 // == element ======================================================================================
@@ -106,6 +110,7 @@ export const Editor = ( { layerIndex }: EditorProps ): JSX.Element => {
       keyMap: 'sublime',
       theme: 'monokai-sharp',
       lineNumbers: true,
+      tabSize: 2,
     } }
     editorDidMount={ handleEditorDidMount }
     onBeforeChange={ handleBeforeChange }

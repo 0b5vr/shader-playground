@@ -1,5 +1,5 @@
 import { ShaderManagerPreset } from '../../ShaderManagerPreset';
-import fragMain from './main.frag';
+import fragMain from './main.frag?raw';
 import imgMergeCat from '../../images/merge-cat.png';
 
 const preset: ShaderManagerPreset = {
