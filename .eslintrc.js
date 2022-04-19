@@ -75,7 +75,6 @@ module.exports = {
     "no-console": [ "error", { allow: [ "info", "warn", "error" ] } ], // don't forget to remove `console.log` !
 
     // typescript-specifics
-    "@typescript-eslint/member-naming": [ "error", { "private": "^_", "protected": "^_" } ], // private members must start from underscore
     "@typescript-eslint/no-explicit-any": [ "off" ], // yea
     "@typescript-eslint/no-non-null-assertion": [ "off" ], // yea
     "@typescript-eslint/no-empty-interface": [ "off" ], // we need to perform mixins
