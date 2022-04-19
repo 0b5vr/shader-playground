@@ -1,4 +1,4 @@
-import { GLCat, GLCatBuffer } from '@fms-cat/glcat-ts';
+import { GLCat, GLCatBuffer } from '@0b5vr/glcat-ts';
 import { EventEmittable } from './utils/EventEmittable';
 import { GPUTimer } from './utils/GPUTimer';
 import JSZip from 'jszip';

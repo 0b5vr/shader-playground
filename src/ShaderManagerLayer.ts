@@ -1,5 +1,5 @@
-import { GLCatFramebuffer, GLCatProgram } from '@fms-cat/glcat-ts';
-import { HistoryPercentileCalculator, Swap } from '@fms-cat/experimental';
+import { GLCatFramebuffer, GLCatProgram } from '@0b5vr/glcat-ts';
+import { HistoryPercentileCalculator, Swap } from '@0b5vr/experimental';
 import { EventEmittable } from './utils/EventEmittable';
 import { ShaderManager } from './ShaderManager';
 import { ShaderManagerTexture } from './ShaderManagerTexture';

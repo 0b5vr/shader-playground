@@ -1,6 +1,6 @@
 import { ShaderManagerPreset } from '../../ShaderManagerPreset';
 import fragMain from './main.frag';
-import imgSdfFmsCat from '../../images/sdf-fms-cat.png';
+import imgWhomst from '../../images/whomst.png';
 
 const preset: ShaderManagerPreset = {
   width: 512,
@@ -13,7 +13,7 @@ const preset: ShaderManagerPreset = {
       textures: [
         {
           name: 'sampler0',
-          url: imgSdfFmsCat,
+          url: imgWhomst,
         },
       ],
     },

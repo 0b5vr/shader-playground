@@ -1,4 +1,4 @@
-import { GLCat, GLCatTexture } from '@fms-cat/glcat-ts';
+import { GLCat, GLCatTexture } from '@0b5vr/glcat-ts';
 import { EventEmittable } from './utils/EventEmittable';
 import { applyMixins } from './utils/applyMixins';
 
