@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from '../states/store';
 import { Colors } from '../constants/Colors';
 import { SHADERMAN } from '../ShaderManager';
@@ -6,13 +6,12 @@ import { registerMouseEvent } from '../utils/registerMouseEvent';
 import styled from 'styled-components';
 
 // == styles =======================================================================================
-const Canvas = styled.canvas<{ x: number; y: number; zoom: number }>`
+const Canvas = styled.canvas`
   margin: 0;
   padding: 0;
   position: absolute;
   left: 50%;
   top: 50%;
-  ${ ( { x, y, zoom } ) => `transform: translateX( calc( ${ x }px - 50% ) ) translateY( calc( ${ y }px - 50% ) ) scale( ${ zoom } );` }
 `;
 
 const Background = styled.div`
@@ -43,6 +42,13 @@ export const Workspace = ( { className, style }: WorkspaceProps ): JSX.Element =
   } ) );
   const dispatch = useDispatch();
 
+  const transform = useMemo( () => {
+    let transform = `translateX( calc( ${ view.zoom * view.x }px - 50% ) ) `;
+    transform += `translateY( calc( ${ view.zoom * view.y }px - 50% ) ) `;
+    transform += `scale( ${ view.zoom } )`;
+    return transform;
+  }, [ view ] );
+
   const canvas = useCallback( ( canvas: HTMLCanvasElement ) => {
     if ( canvas ) {
       SHADERMAN.attachCanvas( canvas );
@@ -63,20 +69,20 @@ export const Workspace = ( { className, style }: WorkspaceProps ): JSX.Element =
     }
   }, [] );
 
-  const handleMouseDown = ( event: React.MouseEvent ): void => {
+  const handleMouseDown = useCallback( ( event: React.MouseEvent ): void => {
     if ( event.button === 1 ) {
       registerMouseEvent(
         ( event, movementSum ) => {
-          const invPixelRatio = 1.0 / window.devicePixelRatio;
+          const multiplier = 1.0 / window.devicePixelRatio / view.zoom;
           dispatch( {
             type: 'Workspace/MoveView',
-            x: movementSum.x * invPixelRatio,
-            y: movementSum.y * invPixelRatio,
+            x: movementSum.x * multiplier,
+            y: movementSum.y * multiplier,
           } );
         }
       );
     }
-  };
+  }, [ dispatch, view.zoom ] );
 
   const handleWheel = ( event: React.WheelEvent ): void => {
     dispatch( {
@@ -92,7 +98,10 @@ export const Workspace = ( { className, style }: WorkspaceProps ): JSX.Element =
       onWheel={ handleWheel }
     >
       <Background />
-      <Canvas ref={ canvas } { ...view } />
+      <Canvas
+        ref={ canvas }
+        style={ { transform } }
+      />
     </Root>
   </>;
 };
