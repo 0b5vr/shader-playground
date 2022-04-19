@@ -6,6 +6,4 @@ export const Metrics = {
 
   genericMargin: '0.5rem',
   genericBorderRadius: '0.5rem',
-
-  editorWidth: '30rem',
 };

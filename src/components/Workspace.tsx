@@ -34,9 +34,10 @@ const Root = styled.div`
 // == element ======================================================================================
 export interface WorkspaceProps {
   className?: string;
+  style?: React.CSSProperties;
 }
 
-export const Workspace = ( { className }: WorkspaceProps ): JSX.Element => {
+export const Workspace = ( { className, style }: WorkspaceProps ): JSX.Element => {
   const { view } = useSelector( ( state ) => ( {
     view: state.workspace.view,
   } ) );
@@ -86,6 +87,7 @@ export const Workspace = ( { className }: WorkspaceProps ): JSX.Element => {
 
   return <>
     <Root className={ className }
+      style={ style }
       onMouseDown={ handleMouseDown }
       onWheel={ handleWheel }
     >

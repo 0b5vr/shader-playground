@@ -9,9 +9,10 @@ const Root = styled.div``;
 // == element ======================================================================================
 export interface EditorsProps {
   className?: string;
+  style?: React.CSSProperties;
 }
 
-export const Editors = ( { className }: EditorsProps ): JSX.Element => {
+export const Editors = ( { className, style }: EditorsProps ): JSX.Element => {
   const { layerCount } = useSelector( ( state ) => {
     const layers = state.shaderManager.layers;
     const layerCount = layers.length;
@@ -20,7 +21,7 @@ export const Editors = ( { className }: EditorsProps ): JSX.Element => {
   } );
 
   return <>
-    <Root className={ className }>
+    <Root className={ className } style={ style }>
       { [ ...new Array( layerCount ).keys() ].map( ( layerIndex ) => (
         <Editor key={ layerIndex }
           layerIndex={ layerIndex }

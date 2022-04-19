@@ -1,6 +1,7 @@
-import { Action, State } from '../states/store';
+import { Action, State, useSelector } from '../states/store';
 import styled, { createGlobalStyle } from 'styled-components';
 import { Colors } from '../constants/Colors';
+import { EditorSeparator } from './EditorSeparator';
 import { Editors } from './Editors';
 import { Metrics } from '../constants/Metrics';
 import { PaneList } from './PaneList';
@@ -26,7 +27,6 @@ const GlobalStyle = createGlobalStyle`
 `;
 
 const StyledEditors = styled( Editors )`
-  width: ${ Metrics.editorWidth };
   height: 100%;
   position: absolute;
   right: 0;
@@ -34,10 +34,18 @@ const StyledEditors = styled( Editors )`
 `;
 
 const StyledWorkspace = styled( Workspace )`
-  width: calc( 100% - ${ Metrics.editorWidth } );
   height: 100%;
   top: 0;
   position: absolute;
+`;
+
+const StyledEditorSeparator = styled( EditorSeparator )`
+  width: 4px;
+  height: 100%;
+  top: 0;
+  position: absolute;
+  background: ${ Colors.back3 };
+  cursor: col-resize;
 `;
 
 const Root = styled.div`
@@ -55,11 +63,20 @@ const Root = styled.div`
 
 // == element ======================================================================================
 const OutOfContextApp = (): JSX.Element => {
+  const editorWidth = useSelector( ( style ) => style.workspace.editorWidth );
+
   return <>
     <Root>
       <ShaderManagerStateListener />
-      <StyledWorkspace />
-      <StyledEditors />
+      <StyledWorkspace
+        style={ { width: `calc( 100% - ${ editorWidth - 4 }px )` } }
+      />
+      <StyledEditors
+        style={ { width: editorWidth } }
+      />
+      <StyledEditorSeparator
+        style={ { right: editorWidth } }
+      />
       <PaneList />
     </Root>
   </>;
