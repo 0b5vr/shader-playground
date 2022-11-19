@@ -13,8 +13,7 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
-    "lint-fix": "eslint \"src/**/*.{ts,tsx}\" --fix",
-    "postinstall": "patch-package"
+    "lint-fix": "eslint \"src/**/*.{ts,tsx}\" --fix"
   },
   "dependencies": {
     "react": "^18.0.0",
@@ -38,8 +37,6 @@
     "immer": "^5.0.1",
     "jszip": "^3.5.0",
     "lint-staged": "^9.5.0",
-    "patch-package": "^6.4.7",
-    "react-codemirror2": "^7.2.1",
     "react-redux": "^8.0.0",
     "redux": "^4.0.5",
     "rimraf": "^3.0.0",

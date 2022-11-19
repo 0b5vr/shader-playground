@@ -3,15 +3,14 @@ import 'codemirror/addon/comment/comment';
 import 'codemirror/keymap/sublime';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/clike/clike';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from '../states/store';
 import CodeMirror from 'codemirror';
-import { Controlled as ReactCodeMirror } from 'react-codemirror2';
 import { SHADERMAN } from '../ShaderManager';
 import styled from 'styled-components';
 
 // == styles =======================================================================================
-const StyledCodeMirror = styled( ReactCodeMirror )<{ visible: boolean }>`
+const CodeMirrorContainer = styled.div<{ visible: boolean }>`
   position: absolute;
   width: 100%;
   height: 100%;
@@ -37,8 +36,54 @@ export const Editor: React.FC<Props> = ( { layerIndex } ) => {
   } );
   const dispatch = useDispatch();
 
+  const [ editor, setEditor ] = useState<CodeMirror.Editor>();
   const [ hasEdited, setHasEdited ] = useState( false );
 
+  // instantiate the editor
+  const refContainer = useCallback( ( element: HTMLDivElement ) => {
+    setEditor( CodeMirror( element, {
+      value: code,
+      mode: 'x-shader/x-fragment',
+      keyMap: 'sublime',
+      theme: 'monokai-sharp',
+      lineNumbers: true,
+      tabSize: 2,
+    } ) );
+  }, [] );
+
+  // change code
+  useEffect(
+    () => {
+      if ( editor == null ) { return; }
+
+      const currentValue = editor.getValue();
+
+      if ( code !== currentValue ) {
+        editor?.setValue( code );
+      }
+    },
+    [ editor, code ]
+  );
+
+  // install onchange
+  useEffect(
+    () => {
+      if ( editor == null ) { return; }
+
+      editor.on( 'change', () => {
+        setHasEdited( true );
+        dispatch( {
+          type: 'ShaderManager/ChangeLayerCode',
+          layerIndex,
+          code: editor.getValue(),
+          markDirty: true,
+        } );
+      } );
+    },
+    [ editor ]
+  );
+
+  // install beforeunload
   useEffect(
     () => {
       if ( hasEdited ) {
@@ -56,65 +101,40 @@ export const Editor: React.FC<Props> = ( { layerIndex } ) => {
     [ hasEdited ]
   );
 
-  const handleExec = useRef<( rewind: boolean ) => void>();
-  handleExec.current = ( rewind: boolean ): void => {
-    const actualLayer = ( layerIndex != null ) ? SHADERMAN.layers[ layerIndex ] : null;
-    if ( !actualLayer || code == null ) { return; }
+  const handleExec = useCallback( ( rewind: boolean ): void => {
+    const actualLayer = SHADERMAN.layers[ layerIndex ];
+    if ( editor == null ) { return; }
 
     try {
-      actualLayer.compileShader( code );
+      actualLayer.compileShader( editor.getValue() );
       if ( rewind ) { SHADERMAN.rewind(); }
     } catch ( e ) {
       console.error( e ); // TODO: more proper error output
     }
-  };
+  }, [ editor ] );
 
-  const handleEditorDidMount = useCallback(
-    ( editor: CodeMirror.Editor ) => {
-      editor.addKeyMap( {
-        'Ctrl-S': () => {
-          handleExec.current?.( false );
-        },
-        'Ctrl-R': () => {
-          handleExec.current?.( true );
-        },
-      } );
-    },
-    [ handleExec ]
-  );
+  // install keyboard shortcuts
+  useEffect( () => {
+    if ( editor == null ) { return; }
 
-  const handleBeforeChange = useCallback(
-    ( editor: CodeMirror.Editor, data: CodeMirror.EditorChange, value: string ) => {
-      setHasEdited( true );
-      dispatch( {
-        type: 'ShaderManager/ChangeLayerCode',
-        layerIndex,
-        code: value,
-        markDirty: true,
-      } );
-    },
-    []
-  );
+    const map = {
+      'Ctrl-S': () => {
+        handleExec( false );
+      },
+      'Ctrl-R': () => {
+        handleExec( true );
+      },
+    };
 
-  const handleChange = useCallback(
-    () => {
-      // do nothing
-    },
-    []
-  );
+    editor.addKeyMap( map );
 
-  return <StyledCodeMirror
-    value={ code }
-    options={ {
-      mode: 'x-shader/x-fragment',
-      keyMap: 'sublime',
-      theme: 'monokai-sharp',
-      lineNumbers: true,
-      tabSize: 2,
-    } }
-    editorDidMount={ handleEditorDidMount }
-    onBeforeChange={ handleBeforeChange }
-    onChange={ handleChange }
+    return () => {
+      editor?.removeKeyMap( map );
+    };
+  }, [ editor, handleExec ] );
+
+  return <CodeMirrorContainer
+    ref={ refContainer }
     visible={ isSelected }
   />;
 };
