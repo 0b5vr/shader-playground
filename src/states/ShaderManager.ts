@@ -11,13 +11,15 @@ export interface State {
   timeMod: number;
   width: number;
   height: number;
-  selectedLayerIndex: number | null;
-  screenLayerIndex: number | null;
+  selectedLayerId: string | null;
+  screenLayerId: string | null;
   layers: Array<{
+    id: string;
     name: string;
     code: string;
     isDirty: boolean;
     textures: Array<{
+      id: string;
       name: string;
       url: string | undefined;
       wrap: ShaderManagerTextureWrap;
@@ -39,8 +41,8 @@ export const initialState: Readonly<State> = {
   timeMod: 0.0,
   width: 0,
   height: 0,
-  selectedLayerIndex: null,
-  screenLayerIndex: null,
+  selectedLayerId: null,
+  screenLayerId: null,
   layers: [],
   isRecording: false,
 };
@@ -63,69 +65,68 @@ export type Action = {
   height: number;
 } | {
   type: 'ShaderManager/SelectLayer';
-  layerIndex: number | null;
+  layerId: string | null;
 } | {
   type: 'ShaderManager/ChangeScreenLayer';
-  layerIndex: number | null;
+  layerId: string | null;
 } | {
   type: 'ShaderManager/ChangeLayerName';
-  layerIndex: number;
+  layerId: string;
   name: string;
 } | {
   type: 'ShaderManager/ChangeLayerCode';
-  layerIndex: number;
+  layerId: string;
   code: string;
   markDirty?: boolean;
 } | {
   type: 'ShaderManager/UpdateLayerGPUTime';
-  layerIndex: number;
+  layerId: string;
   gpuTime: {
     frame: number;
     median: number;
   };
 } | {
-  type: 'ShaderManager/DeleteLayer';
-  layerIndex: number;
-} | {
   type: 'ShaderManager/AddLayer';
-  layerIndex: number;
+  layerId: string;
+  index: number;
   name: string;
   code: string;
 } | {
   type: 'ShaderManager/DeleteLayer';
-  layerIndex: number;
+  layerId: string;
 } | {
   type: 'ShaderManager/ChangeLayerTextureUrl';
-  layerIndex: number;
-  textureIndex: number;
+  layerId: string;
+  textureId: string;
   url: string | undefined;
 } | {
   type: 'ShaderManager/ChangeLayerTextureName';
-  layerIndex: number;
-  textureIndex: number;
+  layerId: string;
+  textureId: string;
   name: string;
 } | {
   type: 'ShaderManager/ChangeLayerTextureWrap';
-  layerIndex: number;
-  textureIndex: number;
+  layerId: string;
+  textureId: string;
   wrap: ShaderManagerTextureWrap;
 } | {
   type: 'ShaderManager/ChangeLayerTextureFilter';
-  layerIndex: number;
-  textureIndex: number;
+  layerId: string;
+  textureId: string;
   filter: ShaderManagerTextureFilter;
 } | {
   type: 'ShaderManager/AddLayerTexture';
-  layerIndex: number;
-  textureIndex: number;
+  layerId: string;
+  textureId: string;
+  index: number;
   name: string;
   url: string | undefined;
   wrap: ShaderManagerTextureWrap;
   filter: ShaderManagerTextureFilter;
 } | {
   type: 'ShaderManager/DeleteLayerTexture';
-  layerIndex: number;
-  textureIndex: number;
+  layerId: string;
+  textureId: string;
 } | {
   type: 'ShaderManager/StartRecording';
 } | {
@@ -147,23 +148,27 @@ export const reducer: Reducer<State, Action> = ( state = initialState, action ) 
       newState.width = action.width;
       newState.height = action.height;
     } else if ( action.type === 'ShaderManager/SelectLayer' ) {
-      newState.selectedLayerIndex = action.layerIndex;
+      newState.selectedLayerId = action.layerId;
     } else if ( action.type === 'ShaderManager/ChangeScreenLayer' ) {
-      newState.screenLayerIndex = action.layerIndex;
+      newState.screenLayerId = action.layerId;
     } else if ( action.type === 'ShaderManager/ChangeLayerName' ) {
-      newState.layers[ action.layerIndex ].name = action.name;
+      const layerIndex = state.layers.findIndex( ( layer ) => layer.id === action.layerId );
+      newState.layers[ layerIndex ].name = action.name;
     } else if ( action.type === 'ShaderManager/ChangeLayerCode' ) {
-      newState.layers[ action.layerIndex ].code = action.code;
+      const layerIndex = state.layers.findIndex( ( layer ) => layer.id === action.layerId );
+      newState.layers[ layerIndex ].code = action.code;
 
       if ( action.markDirty ) {
-        newState.layers[ action.layerIndex ].isDirty = true;
+        newState.layers[ layerIndex ].isDirty = true;
       }
     } else if ( action.type === 'ShaderManager/UpdateLayerGPUTime' ) {
-      if ( state.layers[ action.layerIndex ] ) { // async funny
-        newState.layers[ action.layerIndex ].gpuTime = action.gpuTime;
+      const layerIndex = state.layers.findIndex( ( layer ) => layer.id === action.layerId );
+      if ( state.layers[ layerIndex ] ) { // async funny
+        newState.layers[ layerIndex ].gpuTime = action.gpuTime;
       }
     } else if ( action.type === 'ShaderManager/AddLayer' ) {
-      newState.layers[ action.layerIndex ] = {
+      newState.layers[ action.index ] = {
+        id: action.layerId,
         name: action.name,
         code: action.code,
         isDirty: false,
@@ -174,24 +179,42 @@ export const reducer: Reducer<State, Action> = ( state = initialState, action ) 
         },
       };
     } else if ( action.type === 'ShaderManager/DeleteLayer' ) {
-      newState.layers.splice( action.layerIndex, 1 );
+      const layerIndex = state.layers.findIndex( ( layer ) => layer.id === action.layerId );
+      newState.layers.splice( layerIndex, 1 );
     } else if ( action.type === 'ShaderManager/ChangeLayerTextureUrl' ) {
-      newState.layers[ action.layerIndex ].textures[ action.textureIndex ].url = action.url;
+      const layerIndex = state.layers.findIndex( ( layer ) => layer.id === action.layerId );
+      const textures = state.layers[ layerIndex ].textures;
+      const textureIndex = textures.findIndex( ( texture ) => texture.id === action.textureId );
+      newState.layers[ layerIndex ].textures[ textureIndex ].url = action.url;
     } else if ( action.type === 'ShaderManager/ChangeLayerTextureName' ) {
-      newState.layers[ action.layerIndex ].textures[ action.textureIndex ].name = action.name;
+      const layerIndex = state.layers.findIndex( ( layer ) => layer.id === action.layerId );
+      const textures = state.layers[ layerIndex ].textures;
+      const textureIndex = textures.findIndex( ( texture ) => texture.id === action.textureId );
+      newState.layers[ layerIndex ].textures[ textureIndex ].name = action.name;
     } else if ( action.type === 'ShaderManager/ChangeLayerTextureWrap' ) {
-      newState.layers[ action.layerIndex ].textures[ action.textureIndex ].wrap = action.wrap;
+      const layerIndex = state.layers.findIndex( ( layer ) => layer.id === action.layerId );
+      const textures = state.layers[ layerIndex ].textures;
+      const textureIndex = textures.findIndex( ( texture ) => texture.id === action.textureId );
+      newState.layers[ layerIndex ].textures[ textureIndex ].wrap = action.wrap;
     } else if ( action.type === 'ShaderManager/ChangeLayerTextureFilter' ) {
-      newState.layers[ action.layerIndex ].textures[ action.textureIndex ].filter = action.filter;
+      const layerIndex = state.layers.findIndex( ( layer ) => layer.id === action.layerId );
+      const textures = state.layers[ layerIndex ].textures;
+      const textureIndex = textures.findIndex( ( texture ) => texture.id === action.textureId );
+      newState.layers[ layerIndex ].textures[ textureIndex ].filter = action.filter;
     } else if ( action.type === 'ShaderManager/AddLayerTexture' ) {
-      newState.layers[ action.layerIndex ].textures[ action.textureIndex ] = {
+      const layerIndex = state.layers.findIndex( ( layer ) => layer.id === action.layerId );
+      newState.layers[ layerIndex ].textures[ action.index ] = {
+        id: action.textureId,
         name: action.name,
         url: action.url,
         wrap: action.wrap,
         filter: action.filter,
       };
     } else if ( action.type === 'ShaderManager/DeleteLayerTexture' ) {
-      newState.layers[ action.layerIndex ].textures.splice( action.textureIndex, 1 );
+      const layerIndex = state.layers.findIndex( ( layer ) => layer.id === action.layerId );
+      const textures = state.layers[ layerIndex ].textures;
+      const textureIndex = textures.findIndex( ( texture ) => texture.id === action.textureId );
+      newState.layers[ layerIndex ].textures.splice( textureIndex, 1 );
     } else if ( action.type === 'ShaderManager/StartRecording' ) {
       newState.isRecording = true;
     } else if ( action.type === 'ShaderManager/EndRecording' ) {

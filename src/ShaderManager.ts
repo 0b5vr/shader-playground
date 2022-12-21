@@ -180,6 +180,8 @@ export class ShaderManager {
     );
 
     this.rewind();
+
+    this.__emit( 'loadPreset', { preset } );
   }
 
   public createLayer( name: string ): ShaderManagerLayer {
@@ -356,6 +358,7 @@ export interface ShaderManagerEvents {
   changeScreenLayer: { layer: ShaderManagerLayer | null; index: number };
   addLayer: { layer: ShaderManagerLayer; index: number };
   deleteLayer: { layer: ShaderManagerLayer; index: number };
+  loadPreset: { preset: ShaderManagerPreset };
 }
 
 export interface ShaderManager extends EventEmittable<ShaderManagerEvents> {}

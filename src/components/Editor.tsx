@@ -23,14 +23,14 @@ const CodeMirrorContainer = styled.div<{ visible: boolean }>`
 
 // == element ======================================================================================
 interface Props {
-  layerIndex: number;
+  layerId: string;
 }
 
-export const Editor: React.FC<Props> = ( { layerIndex } ) => {
+export const Editor: React.FC<Props> = ( { layerId } ) => {
   const { isSelected, code } = useSelector( ( state ) => {
-    const isSelected = state.shaderManager.selectedLayerIndex === layerIndex;
-    const layer = state.shaderManager.layers[ layerIndex ];
-    const code = layer?.code;
+    const isSelected = state.shaderManager.selectedLayerId === layerId;
+    const layer = state.shaderManager.layers.find( ( layer ) => layer.id === layerId );
+    const code = layer!.code;
 
     return { isSelected, code };
   } );
@@ -74,7 +74,7 @@ export const Editor: React.FC<Props> = ( { layerIndex } ) => {
         setHasEdited( true );
         dispatch( {
           type: 'ShaderManager/ChangeLayerCode',
-          layerIndex,
+          layerId,
           code: editor.getValue(),
           markDirty: true,
         } );
@@ -102,8 +102,9 @@ export const Editor: React.FC<Props> = ( { layerIndex } ) => {
   );
 
   const handleExec = useCallback( ( rewind: boolean ): void => {
-    const actualLayer = SHADERMAN.layers[ layerIndex ];
     if ( editor == null ) { return; }
+
+    const actualLayer = SHADERMAN.layers.find( ( layer ) => layer.id === layerId )!;
 
     try {
       actualLayer.compileShader( editor.getValue() );

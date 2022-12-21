@@ -93,48 +93,55 @@ const Root = styled.div`
 
 // == element ======================================================================================
 interface Props {
-  layerIndex: number;
-  textureIndex: number;
+  layerId: string;
+  textureId: string;
   className?: string;
 }
 
-export const Texture: React.FC<Props> = ( { className, layerIndex, textureIndex } ) => {
+export const Texture: React.FC<Props> = ( { className, layerId, textureId } ) => {
   const { name, url, wrap, filter } = useSelector( ( state ) => {
-    const texture = state.shaderManager.layers[ layerIndex ].textures[ textureIndex ];
+    const layer = state.shaderManager.layers.find( ( layer ) => layer.id === layerId )!;
+    const texture = layer.textures.find( ( texture ) => texture.id === textureId )!;
     const { name, url, wrap, filter } = texture;
     return { name, url, wrap, filter };
   } );
 
   const handleChangeName = useCallback(
     ( event: React.ChangeEvent<HTMLInputElement> ) => {
-      const layer = SHADERMAN.layers[ layerIndex ];
-      layer.textures[ textureIndex ].name = event.target.value;
+      const actualLayer = SHADERMAN.layers.find( ( layer ) => layer.id === layerId )!;
+      const actualTexture = actualLayer.textures.find( ( texture ) => texture.id === textureId )!;
+      actualTexture.name = event.target.value;
     },
-    [ layerIndex, textureIndex ],
+    [ layerId, textureId ],
   );
 
   const handleChangeWrap = useCallback(
     ( event: React.ChangeEvent<HTMLSelectElement> ) => {
-      const layer = SHADERMAN.layers[ layerIndex ];
-      layer.textures[ textureIndex ].wrap = event.target.value as ShaderManagerTextureWrap;
+      const actualLayer = SHADERMAN.layers.find( ( layer ) => layer.id === layerId )!;
+      const actualTexture = actualLayer.textures.find( ( texture ) => texture.id === textureId )!;
+      actualTexture.wrap = event.target.value as ShaderManagerTextureWrap;
     },
-    [ layerIndex, textureIndex ],
+    [ layerId, textureId ],
   );
 
   const handleChangeFilter = useCallback(
     ( event: React.ChangeEvent<HTMLSelectElement> ) => {
-      const layer = SHADERMAN.layers[ layerIndex ];
-      layer.textures[ textureIndex ].filter = event.target.value as ShaderManagerTextureFilter;
+      const actualLayer = SHADERMAN.layers.find( ( layer ) => layer.id === layerId )!;
+      const actualTexture = actualLayer.textures.find( ( texture ) => texture.id === textureId )!;
+      actualTexture.filter = event.target.value as ShaderManagerTextureFilter;
     },
-    [ layerIndex, textureIndex ],
+    [ layerId, textureId ],
   );
 
   const handleClickDelete = useCallback(
     () => {
-      const layer = SHADERMAN.layers[ layerIndex ];
-      layer.deleteTexture( textureIndex );
+      const actualLayer = SHADERMAN.layers.find( ( layer ) => layer.id === layerId )!;
+      const textureIndex = actualLayer.textures.findIndex(
+        ( texture ) => texture.id === textureId
+      )!;
+      actualLayer.deleteTexture( textureIndex );
     },
-    [ layerIndex, name ]
+    [ layerId, name ]
   );
 
   return <>

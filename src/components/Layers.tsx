@@ -50,11 +50,11 @@ const Root = styled.div`
 
 // == element ======================================================================================
 export const Layers: React.FC = () => {
-  const { layers, layerCount } = useSelector( ( state ) => {
-    const layers = state.shaderManager.layers;
-    const layerCount = layers.length;
+  const { layerIds, layerCount } = useSelector( ( state ) => {
+    const layerIds = state.shaderManager.layers.map( ( layer ) => layer.id );
+    const layerCount = layerIds.length;
 
-    return { layers, layerCount };
+    return { layerIds, layerCount };
   } );
 
   const handleClickAdd = useCallback( () => {
@@ -64,9 +64,9 @@ export const Layers: React.FC = () => {
   return (
     <Root>
       <TexturesContainer>
-        { layers.map( ( _, index ) => <Layer
-          key={ index }
-          layerIndex={ index }
+        { layerIds.map( ( layerId ) => <Layer
+          key={ layerId }
+          layerId={ layerId }
         /> ) }
         <ButtonAdd onClick={ handleClickAdd }>
           <Plus>

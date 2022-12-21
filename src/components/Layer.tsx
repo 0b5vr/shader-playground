@@ -57,17 +57,17 @@ const Root = styled.div<{ isSelected: boolean }>`
 
 // == element ======================================================================================
 interface Props {
-  layerIndex: number;
+  layerId: string;
 }
 
-export const Layer: React.FC<Props> = ( { layerIndex } ) => {
+export const Layer: React.FC<Props> = ( { layerId } ) => {
   const { isSelected, isScreen } = useSelector( ( state ) => ( {
-    isSelected: state.shaderManager.selectedLayerIndex === layerIndex,
-    isScreen: state.shaderManager.screenLayerIndex === layerIndex,
+    isSelected: state.shaderManager.selectedLayerId === layerId,
+    isScreen: state.shaderManager.screenLayerId === layerId,
   } ) );
   const { name } = useSelector( ( state ) => {
-    const layer = state.shaderManager.layers[ layerIndex ];
-    const { name } = layer;
+    const layer = state.shaderManager.layers.find( ( layer ) => layer.id === layerId );
+    const name = layer!.name;
     return { name };
   } );
   const dispatch = useDispatch();
@@ -75,16 +75,16 @@ export const Layer: React.FC<Props> = ( { layerIndex } ) => {
   const handleClick = useCallback( () => {
     dispatch( {
       type: 'ShaderManager/SelectLayer',
-      layerIndex: layerIndex,
+      layerId,
     } );
-  }, [ layerIndex ] );
+  }, [ layerId ] );
 
   const handleChangeName = useCallback(
     ( event: React.ChangeEvent<HTMLInputElement> ) => {
-      const layer = SHADERMAN.layers[ layerIndex ];
-      layer.name = event.target.value;
+      const layer = SHADERMAN.layers.find( ( layer ) => layer.id === layerId );
+      layer!.name = event.target.value;
     },
-    [ layerIndex ],
+    [ layerId ],
   );
 
   const handleClickScreenCheck = useCallback(
@@ -96,20 +96,24 @@ export const Layer: React.FC<Props> = ( { layerIndex } ) => {
 
   const handleChangeScreenCheck = useCallback(
     () => {
+      const layerIndex = SHADERMAN.layers.findIndex( ( layer ) => layer.id === layerId );
+
       if ( isScreen ) {
         SHADERMAN.setScreenLayer( -1 );
       } else {
         SHADERMAN.setScreenLayer( layerIndex );
       }
     },
-    [ isScreen ]
+    [ layerId, isScreen ]
   );
 
   const handleClickDelete = useCallback(
     () => {
+      const layerIndex = SHADERMAN.layers.findIndex( ( layer ) => layer.id === layerId );
+
       SHADERMAN.deleteLayer( layerIndex );
     },
-    [ layerIndex ],
+    [ layerId ],
   );
 
   return <>

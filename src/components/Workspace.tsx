@@ -59,13 +59,12 @@ export const Workspace: React.FC<Props> = ( { className, style } ) => {
       } );
 
       const layer = SHADERMAN.createLayer( 'layer0' );
-      const layerIndex = SHADERMAN.layers.indexOf( layer );
       dispatch( {
         type: 'ShaderManager/SelectLayer',
-        layerIndex,
+        layerId: layer.id,
       } );
 
-      SHADERMAN.setScreenLayer( layerIndex );
+      SHADERMAN.setScreenLayer( SHADERMAN.layers.indexOf( layer ) );
     }
   }, [] );
 

@@ -11,17 +11,18 @@ export const ShaderManagerStateListener: React.FC = () => {
   useEffect(
     () => {
       const addLayer = ( { index, layer }: { index: number; layer: ShaderManagerLayer } ): void => {
-        const layerIndex = index;
+        const layerId = layer.id;
 
         const addTexture = (
           { index, texture }: { index: number; texture: ShaderManagerTexture }
         ): void => {
-          const textureIndex = index;
+          const textureId = texture.id;
 
           dispatch( {
             type: 'ShaderManager/AddLayerTexture',
-            layerIndex,
-            textureIndex,
+            layerId,
+            textureId,
+            index,
             name: texture.name,
             url: texture.url,
             wrap: texture.wrap,
@@ -31,8 +32,8 @@ export const ShaderManagerStateListener: React.FC = () => {
           texture.on( 'load', ( { url } ) => {
             dispatch( {
               type: 'ShaderManager/ChangeLayerTextureUrl',
-              layerIndex,
-              textureIndex,
+              layerId,
+              textureId,
               url,
             } );
           } );
@@ -40,8 +41,8 @@ export const ShaderManagerStateListener: React.FC = () => {
           texture.on( 'changeName', ( { name } ) => {
             dispatch( {
               type: 'ShaderManager/ChangeLayerTextureName',
-              layerIndex,
-              textureIndex,
+              layerId,
+              textureId,
               name,
             } );
           } );
@@ -49,8 +50,8 @@ export const ShaderManagerStateListener: React.FC = () => {
           texture.on( 'changeWrap', ( { wrap } ) => {
             dispatch( {
               type: 'ShaderManager/ChangeLayerTextureWrap',
-              layerIndex,
-              textureIndex,
+              layerId,
+              textureId,
               wrap,
             } );
           } );
@@ -58,8 +59,8 @@ export const ShaderManagerStateListener: React.FC = () => {
           texture.on( 'changeFilter', ( { filter } ) => {
             dispatch( {
               type: 'ShaderManager/ChangeLayerTextureFilter',
-              layerIndex,
-              textureIndex,
+              layerId,
+              textureId,
               filter,
             } );
           } );
@@ -67,7 +68,8 @@ export const ShaderManagerStateListener: React.FC = () => {
 
         dispatch( {
           type: 'ShaderManager/AddLayer',
-          layerIndex: index,
+          layerId,
+          index,
           name: layer.name,
           code: layer.code ?? '',
         } );
@@ -75,7 +77,7 @@ export const ShaderManagerStateListener: React.FC = () => {
         layer.on( 'changeName', ( { name } ) => {
           dispatch( {
             type: 'ShaderManager/ChangeLayerName',
-            layerIndex,
+            layerId,
             name,
           } );
         } );
@@ -86,18 +88,18 @@ export const ShaderManagerStateListener: React.FC = () => {
           addTexture( { texture, index } );
         } );
 
-        layer.on( 'deleteTexture', ( { index } ) => {
+        layer.on( 'deleteTexture', ( { texture } ) => {
           dispatch( {
             type: 'ShaderManager/DeleteLayerTexture',
-            layerIndex,
-            textureIndex: index,
+            layerId,
+            textureId: texture.id,
           } );
         } );
 
         layer.on( 'compileShader', ( { code } ) => {
           dispatch( {
             type: 'ShaderManager/ChangeLayerCode',
-            layerIndex,
+            layerId,
             code,
           } );
         } );
@@ -105,7 +107,7 @@ export const ShaderManagerStateListener: React.FC = () => {
         layer.on( 'gpuTime', ( { frame, median } ) => {
           dispatch( {
             type: 'ShaderManager/UpdateLayerGPUTime',
-            layerIndex,
+            layerId,
             gpuTime: {
               frame,
               median,
@@ -125,10 +127,10 @@ export const ShaderManagerStateListener: React.FC = () => {
         addLayer( { layer, index } );
       } );
 
-      SHADERMAN.on( 'changeScreenLayer', ( { index } ) => {
+      SHADERMAN.on( 'changeScreenLayer', ( { layer } ) => {
         dispatch( {
           type: 'ShaderManager/ChangeScreenLayer',
-          layerIndex: index,
+          layerId: layer?.id ?? null,
         } );
       } );
 
@@ -162,10 +164,10 @@ export const ShaderManagerStateListener: React.FC = () => {
         } );
       } );
 
-      SHADERMAN.on( 'deleteLayer', ( { index } ) => {
+      SHADERMAN.on( 'deleteLayer', ( { layer } ) => {
         dispatch( {
           type: 'ShaderManager/DeleteLayer',
-          layerIndex: index,
+          layerId: layer.id,
         } );
       } );
 
@@ -174,6 +176,18 @@ export const ShaderManagerStateListener: React.FC = () => {
           type: 'ShaderManager/ChangeResolution',
           width,
           height,
+        } );
+      } );
+
+      SHADERMAN.on( 'loadPreset', ( { preset } ) => {
+        const layer = SHADERMAN.layers
+          .find( ( layer ) => layer.name === preset.selectedLayer )
+          ?? SHADERMAN.layers[ 0 ];
+        const layerId = layer.id;
+
+        dispatch( {
+          type: 'ShaderManager/SelectLayer',
+          layerId,
         } );
       } );
     },

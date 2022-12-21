@@ -1,12 +1,15 @@
 import { GLCat, GLCatTexture } from '@0b5vr/glcat-ts';
 import { EventEmittable } from './utils/EventEmittable';
 import { applyMixins } from './utils/applyMixins';
+import { genID } from './utils/genID';
 
 export type ShaderManagerTextureWrap = 'repeat' | 'clamp';
 
 export type ShaderManagerTextureFilter = 'nearest' | 'linear' | 'mipmap';
 
 export class ShaderManagerTexture {
+  public readonly id = genID();
+
   private __url?: string;
   public get url(): string | undefined {
     return this.__url;

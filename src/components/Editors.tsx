@@ -13,18 +13,17 @@ interface Props {
 }
 
 export const Editors: React.FC<Props> = ( { className, style } ) => {
-  const { layerCount } = useSelector( ( state ) => {
-    const layers = state.shaderManager.layers;
-    const layerCount = layers.length;
+  const { layerIds } = useSelector( ( state ) => {
+    const layerIds = state.shaderManager.layers.map( ( layer ) => layer.id );
 
-    return { layerCount };
+    return { layerIds };
   } );
 
   return <>
     <Root className={ className } style={ style }>
-      { [ ...new Array( layerCount ).keys() ].map( ( layerIndex ) => (
-        <Editor key={ layerIndex }
-          layerIndex={ layerIndex }
+      { layerIds.map( ( layerId ) => (
+        <Editor key={ layerId }
+          layerId={ layerId }
         />
       ) ) }
     </Root>

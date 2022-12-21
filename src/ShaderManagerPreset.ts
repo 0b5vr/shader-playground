@@ -3,6 +3,7 @@ import { ShaderManagerTextureFilter, ShaderManagerTextureWrap } from './ShaderMa
 export interface ShaderManagerPreset {
   width: number;
   height: number;
+  selectedLayer?: string;
   screenLayer: string;
   layers: Array<{
     name: string;

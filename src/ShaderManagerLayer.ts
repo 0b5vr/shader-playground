@@ -7,8 +7,11 @@ import { applyMixins } from './utils/applyMixins';
 import default3Vert from './shaders/default3.vert?raw';
 import defaultFrag from './shaders/default.frag?raw';
 import defaultVert from './shaders/default.vert?raw';
+import { genID } from './utils/genID';
 
 export class ShaderManagerLayer {
+  public readonly id = genID();
+
   private _code?: string;
   public get code(): string | undefined { return this._code; }
 

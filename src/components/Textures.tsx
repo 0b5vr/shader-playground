@@ -24,13 +24,14 @@ interface Props {
 }
 
 export const Textures: React.FC<Props> = ( { className } ) => {
-  const { layerIndex, layer } = useSelector( ( state ) => {
-    const layerIndex = state.shaderManager.selectedLayerIndex;
-    const layer = ( layerIndex != null )
-      ? state.shaderManager.layers[ layerIndex ]
+  const { layerId, layer, textureIds } = useSelector( ( state ) => {
+    const layerId = state.shaderManager.selectedLayerId;
+    const layer = ( layerId != null )
+      ? state.shaderManager.layers.find( ( layer ) => layer.id === layerId )
       : null;
+    const textureIds = layer?.textures.map( ( texture ) => texture.id );
 
-    return { layerIndex, layer };
+    return { layerId, layer, textureIds };
   } );
 
   const handleDragOver = ( event: React.DragEvent ): void => {
@@ -42,9 +43,11 @@ export const Textures: React.FC<Props> = ( { className } ) => {
 
     const files = event.dataTransfer?.files;
     if ( files ) {
-      const actualLayer = ( layerIndex != null ) ? SHADERMAN.layers[ layerIndex ] : null;
+      const actualLayer = ( layerId != null )
+        ? SHADERMAN.layers.find( ( layer ) => layer.id === layerId )
+        : null;
 
-      if ( layerIndex != null && actualLayer ) {
+      if ( layerId != null && actualLayer ) {
         Array.from( files ).forEach( ( file ) => {
           const blob = new Blob( [ file ] );
           const name = 'sampler' + actualLayer.textures.length;
@@ -60,12 +63,12 @@ export const Textures: React.FC<Props> = ( { className } ) => {
       onDragOver={ handleDragOver }
       onDrop={ handleDrop }
     >
-      { ( ( layerIndex != null ) && layer ) ? (
+      { ( ( layerId != null ) && layer ) ? (
         <TexturesContainer>
-          { layer.textures.map( ( _, index ) => <Texture
-            key={ index }
-            layerIndex={ layerIndex }
-            textureIndex={ index }
+          { textureIds?.map( ( textureId ) => <Texture
+            key={ textureId }
+            layerId={ layerId }
+            textureId={ textureId }
           /> ) }
           <Margin />
         </TexturesContainer>
