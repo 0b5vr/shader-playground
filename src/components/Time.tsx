@@ -1,13 +1,34 @@
 import React, { useCallback } from 'react';
+import { Colors } from '../constants/Colors';
 import { CommonInput } from './CommonInput';
+import { Metrics } from '../constants/Metrics';
 import { SHADERMAN } from '../ShaderManager';
 import styled from 'styled-components';
 import { useSelector } from '../states/store';
 
 // == styles =======================================================================================
-const Button = styled.div`
-  font-size: 12px;
+const Button = styled.button`
+  margin-left: 16px;
+  padding: 2px 8px;
+  width: 60px;
+  text-align: center;
+  color: ${ Colors.fore };
+  background: ${ Colors.back1 };
+  border-radius: calc( 0.5 * ${ Metrics.genericBorderRadius } );
+  border: none;
   cursor: pointer;
+
+  &:active {
+    opacity: 0.8;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+  }
+
+  & + & {
+    margin-left: 4px;
+  }
 `;
 
 const Div = styled.div`
@@ -25,7 +46,8 @@ const Root = styled.div`
 
 // == element ======================================================================================
 export const Time: React.FC = () => {
-  const { time, deltaTime, frame } = useSelector( ( state ) => ( {
+  const { isPlaying, time, deltaTime, frame } = useSelector( ( state ) => ( {
+    isPlaying: state.shaderManager.isPlaying,
     time: state.shaderManager.time,
     deltaTime: state.shaderManager.deltaTime,
     frame: state.shaderManager.frame,
@@ -38,6 +60,20 @@ export const Time: React.FC = () => {
       if ( 0 < value ) {
         SHADERMAN.setTimeMod( value );
       }
+    },
+    [],
+  );
+
+  const handleClickPlay = useCallback(
+    () => {
+      SHADERMAN.play();
+    },
+    [],
+  );
+
+  const handleClickPause = useCallback(
+    () => {
+      SHADERMAN.pause();
     },
     [],
   );
@@ -59,9 +95,17 @@ export const Time: React.FC = () => {
         value={ timeMod }
         onChange={ handleChangeTimeMod }
       /></Div>
-      <Button onClick={ handleClickRewind }>
-        ⏪
-      </Button>
+      <Div>
+        <Button onClick={ handleClickPlay } disabled={ isPlaying }>
+          Play
+        </Button>
+        <Button onClick={ handleClickPause } disabled={ !isPlaying }>
+          Pause
+        </Button>
+        <Button onClick={ handleClickRewind }>
+          Rewind
+        </Button>
+      </Div>
     </Root>
   </>;
 };

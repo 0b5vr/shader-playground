@@ -16,7 +16,7 @@ const InputLabel = styled.div`
   }
 `;
 
-const ButtonRecord = styled.div<{ isRecording: boolean }>`
+const ButtonRecord = styled.button<{ isRecording: boolean }>`
   margin-left: 16px;
   padding: 2px 8px;
   width: 60px;
@@ -24,10 +24,11 @@ const ButtonRecord = styled.div<{ isRecording: boolean }>`
   color: ${ ( { isRecording } ) => isRecording ? Colors.red : Colors.fore };
   background: ${ Colors.back1 };
   border-radius: calc( 0.5 * ${ Metrics.genericBorderRadius } );
+  border: none;
   cursor: pointer;
 
   &:active {
-    opacity: 0.5;
+    opacity: 0.8;
   }
 `;
 

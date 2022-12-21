@@ -132,6 +132,20 @@ export const ShaderManagerStateListener: React.FC = () => {
         } );
       } );
 
+      SHADERMAN.on( 'play', () => {
+        dispatch( {
+          type: 'ShaderManager/SetIsPlaying',
+          isPlaying: true,
+        } );
+      } );
+
+      SHADERMAN.on( 'pause', () => {
+        dispatch( {
+          type: 'ShaderManager/SetIsPlaying',
+          isPlaying: false,
+        } );
+      } );
+
       SHADERMAN.on( 'update', ( { time, deltaTime, frame } ) => {
         dispatch( {
           type: 'ShaderManager/UpdateTime',

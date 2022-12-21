@@ -8,6 +8,9 @@ import { ShaderManagerPreset } from './ShaderManagerPreset';
 import { applyMixins } from './utils/applyMixins';
 
 export class ShaderManager {
+  private _isPlaying = true;
+  public get isPlaying(): boolean { return this._isPlaying; }
+
   private _time = 0.0;
   public get time(): number { return this._time; }
 
@@ -64,6 +67,19 @@ export class ShaderManager {
 
   public get isReady(): boolean {
     return !!this._canvas;
+  }
+
+  public play(): void {
+    this._isPlaying = true;
+    this._beginDate = 0.001 * Date.now() - this._time;
+
+    this.__emit( 'play' );
+  }
+
+  public pause(): void {
+    this._isPlaying = false;
+
+    this.__emit( 'pause' );
   }
 
   public rewind(): void {
@@ -229,7 +245,8 @@ export class ShaderManager {
     const deltaTime = 1.0 / fps;
     for ( let iFrame = 0; iFrame < frames * each; iFrame ++ ) {
       const time = iFrame / fps;
-      this.render( { time, deltaTime } );
+      this.updateTime( { time, deltaTime } );
+      this.render();
 
       if ( ( iFrame + 1 ) % each === 0 ) {
         const blob = await this.toBlob();
@@ -245,7 +262,10 @@ export class ShaderManager {
     return blob;
   }
 
-  public render( {
+  /**
+   * hit me right before you call {@link render}
+   */
+  public updateTime( {
     time = undefined as ( number | undefined ),
     deltaTime = undefined as ( number | undefined ),
   } = {} ): void {
@@ -267,7 +287,9 @@ export class ShaderManager {
     } else {
       this._deltaTime = this._time - prevTime;
     }
+  }
 
+  public render(): void {
     const canvas = this._canvas;
     const gl = this._gl;
     const glCat = this._glCat;
@@ -305,6 +327,15 @@ export class ShaderManager {
 
     this.__frame ++;
   }
+
+  public update(): void {
+    if ( !this.isReady ) { return; }
+    if ( !this.isPlaying ) { return; }
+    if ( this.isRecording ) { return; }
+
+    this.updateTime();
+    this.render();
+  }
 }
 
 export const SHADERMAN = new ShaderManager();
@@ -312,13 +343,13 @@ export const SHADERMAN = new ShaderManager();
 function update(): void {
   requestAnimationFrame( update );
 
-  if ( SHADERMAN.isReady && !SHADERMAN.isRecording ) {
-    SHADERMAN.render();
-  }
+  SHADERMAN.update();
 }
 update();
 
 export interface ShaderManagerEvents {
+  play: void;
+  pause: void;
   update: { time: number; deltaTime: number; frame: number };
   changeTimeMod: { timeMod: number };
   changeResolution: { width: number; height: number };

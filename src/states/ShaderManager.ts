@@ -4,6 +4,7 @@ import { produce } from 'immer';
 
 // == state ========================================================================================
 export interface State {
+  isPlaying: boolean;
   time: number;
   deltaTime: number;
   frame: number;
@@ -31,6 +32,7 @@ export interface State {
 }
 
 export const initialState: Readonly<State> = {
+  isPlaying: true,
   time: 0.0,
   deltaTime: 0.0,
   frame: 0,
@@ -45,6 +47,9 @@ export const initialState: Readonly<State> = {
 
 // == action =======================================================================================
 export type Action = {
+  type: 'ShaderManager/SetIsPlaying';
+  isPlaying: boolean;
+} | {
   type: 'ShaderManager/UpdateTime';
   time: number;
   deltaTime: number;
@@ -130,7 +135,9 @@ export type Action = {
 // == reducer ======================================================================================
 export const reducer: Reducer<State, Action> = ( state = initialState, action ) => {
   return produce( state, ( newState: State ) => {
-    if ( action.type === 'ShaderManager/UpdateTime' ) {
+    if ( action.type === 'ShaderManager/SetIsPlaying' ) {
+      newState.isPlaying = action.isPlaying;
+    } else if ( action.type === 'ShaderManager/UpdateTime' ) {
       newState.time = action.time;
       newState.deltaTime = action.deltaTime;
       newState.frame = action.frame;
