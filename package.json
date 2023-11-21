@@ -34,7 +34,7 @@
     "eslint-plugin-react": "^7.29.4",
     "git-branch-is": "^3.1.0",
     "husky": "^3.1.0",
-    "immer": "^5.0.1",
+    "immer": "^9.0.6",
     "jszip": "^3.5.0",
     "lint-staged": "^9.5.0",
     "react-redux": "^8.0.0",
