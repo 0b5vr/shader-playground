@@ -1,0 +1,9 @@
+minimumReleaseAge: 10080
+blockExoticSubdeps: true
+
+minimumReleaseAgeExclude:
+  - "@0b5vr/*"
+
+allowBuilds:
+  esbuild: true
+  husky: true
