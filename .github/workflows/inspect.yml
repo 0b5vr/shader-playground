@@ -1,0 +1,58 @@
+name: Inspect
+
+on: push
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v6
+
+      - name: init stuff
+        uses: ./.github/actions/init
+
+      - name: lint
+        run: npm run lint
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v6
+
+      - name: init stuff
+        uses: ./.github/actions/init
+
+      - name: build
+        run: npm run build
+
+      - name: upload build for pages
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ./dist
+
+  pages:
+    runs-on: ubuntu-latest
+
+    if: ${{ github.ref == 'refs/heads/release' }}
+
+    needs: build
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: deploy
+        uses: actions/deploy-pages@v5
