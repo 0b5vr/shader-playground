@@ -23,17 +23,17 @@ uniform vec2 resolution;
 uniform sampler2D sampler0;
 
 // == common =======================================================================================
-mat2 rotate2D( float t ) {
-  return mat2( cos( t ), -sin( t ), sin( t ), cos( t ) );
+mat2 rotate2D(float t) {
+  return mat2(cos(t), -sin(t), sin(t), cos(t));
 }
 
-bool isValidUv( vec2 uv ) {
+bool isValidUv(vec2 uv) {
   return 0.0 < uv.x && uv.x < 1.0 && 0.0 < uv.y && uv.y < 1.0;
 }
 
-float ditherThreshold( vec2 coord ) {
-  vec2 c = floor( mod( coord, 2.0 ) );
-  return c.x + 2.0 * mod( c.x + c.y, 2.0 );
+float ditherThreshold(vec2 coord) {
+  vec2 c = floor(mod(coord, 2.0));
+  return c.x + 2.0 * mod(c.x + c.y, 2.0);
 }
 
 // == camera =======================================================================================
@@ -45,11 +45,11 @@ struct Camera {
   float fov;
 };
 
-Camera newCamera( vec3 pos, vec3 dir ) {
+Camera newCamera(vec3 pos, vec3 dir) {
   Camera camera;
   camera.pos = pos;
   camera.dir = dir;
-  camera.up = vec3( 0.0, 1.0, 0.0 );
+  camera.up = vec3(0.0, 1.0, 0.0);
   camera.roll = 0.0;
   camera.fov = 0.5;
   return camera;
@@ -61,24 +61,24 @@ struct Ray {
   vec3 dir;
 };
 
-Ray newRay( vec3 ori, vec3 dir ) {
+Ray newRay(vec3 ori, vec3 dir) {
   Ray ray;
   ray.orig = ori;
   ray.dir = dir;
   return ray;
 }
 
-Ray rayFromCamera( Camera camera, vec2 p ) {
-  vec3 dirX = normalize( cross( camera.dir, camera.up ) );
-  vec3 dirY = cross( dirX, camera.dir );
-  vec2 pt = rotate2D( camera.roll ) * p;
+Ray rayFromCamera(Camera camera, vec2 p) {
+  vec3 dirX = normalize(cross(camera.dir, camera.up));
+  vec3 dirY = cross(dirX, camera.dir);
+  vec2 pt = rotate2D(camera.roll) * p;
   return newRay(
     camera.pos,
-    normalize( pt.x * dirX + pt.y * dirY + camera.dir / tan( camera.fov ) )
+    normalize(pt.x * dirX + pt.y * dirY + camera.dir / tan(camera.fov))
   );
 }
 
-vec3 getRayPosition( Ray ray, float len ) {
+vec3 getRayPosition(Ray ray, float len) {
   return ray.orig + ray.dir * len;
 }
 
@@ -89,11 +89,11 @@ struct Intersection {
   vec3 pos;
 };
 
-Intersection newIntersection( Ray ray, float len ) {
+Intersection newIntersection(Ray ray, float len) {
   Intersection isect;
   isect.ray = ray;
   isect.len = len;
-  isect.pos = getRayPosition( ray, len );
+  isect.pos = getRayPosition(ray, len);
   return isect;
 }
 
@@ -104,60 +104,60 @@ struct MarchResult {
 };
 
 // == distFuncs ====================================================================================
-MarchResult distFunc( vec3 p ) {
+MarchResult distFunc(vec3 p) {
   MarchResult result;
 
-  result.dist = length( p ) - 1.0;
+  result.dist = length(p) - 1.0;
   result.uv = vec2(
-    0.5 + 0.5 * atan( p.z, p.x ) / PI,
-    0.5 + atan( p.y, length( p.zx ) ) / PI
+    0.5 + 0.5 * atan(p.z, p.x) / PI,
+    0.5 + atan(p.y, length(p.zx)) / PI
   );
 
   return result;
 }
 
-vec3 normalFunc( vec3 p, float dd ) {
-  vec2 d = vec2( 0.0, dd );
-  return normalize( vec3(
-    distFunc( p + d.yxx ).dist - distFunc( p - d.yxx ).dist,
-    distFunc( p + d.xyx ).dist - distFunc( p - d.xyx ).dist,
-    distFunc( p + d.xxy ).dist - distFunc( p - d.xxy ).dist
-  ) );
+vec3 normalFunc(vec3 p, float dd) {
+  vec2 d = vec2(0.0, dd);
+  return normalize(vec3(
+    distFunc(p + d.yxx).dist - distFunc(p - d.yxx).dist,
+    distFunc(p + d.xyx).dist - distFunc(p - d.xyx).dist,
+    distFunc(p + d.xxy).dist - distFunc(p - d.xxy).dist
+  ));
 }
 
-vec3 normalFunc( vec3 p ) {
-  return normalFunc( p, MARCH_EPSILON );
+vec3 normalFunc(vec3 p) {
+  return normalFunc(p, MARCH_EPSILON);
 }
 
 // == main procedure ===============================================================================
 void main() {
-  vec2 p = ( vUv * resolution * 2.0 - resolution ) / resolution.x;
+  vec2 p = (vUv * resolution * 2.0 - resolution) / resolution.x;
   Camera camera = newCamera(
-    vec3( 0.0, 0.0, 5.0 ),
-    vec3( 0.0, 0.0, -1.0 )
+    vec3(0.0, 0.0, 5.0),
+    vec3(0.0, 0.0, -1.0)
   );
   camera.fov = 0.25 * PI;
-  Ray ray = rayFromCamera( camera, p );
+  Ray ray = rayFromCamera(camera, p);
 
-  Intersection isect = newIntersection( ray, MARCH_NEAR_ENOUGH );
+  Intersection isect = newIntersection(ray, MARCH_NEAR_ENOUGH);
   MarchResult result;
 
-  for ( int i = 0; i < MARCH_ITER; i ++ ) {
-    result = distFunc( isect.pos );
-    if ( abs( result.dist ) < MARCH_WAY_NEAR ) { break; }
+  for (int i = 0; i < MARCH_ITER; i ++) {
+    result = distFunc(isect.pos);
+    if (abs(result.dist) < MARCH_WAY_NEAR) { break; }
     isect.len += result.dist * MARCH_MULP;
-    if ( MARCH_FAR < isect.len ) { break; }
-    isect.pos = getRayPosition( ray, isect.len );
+    if (MARCH_FAR < isect.len) { break; }
+    isect.pos = getRayPosition(ray, isect.len);
   }
 
-  vec3 color = vec3( 0.0 );
+  vec3 color = vec3(0.0);
 
-  if ( abs( result.dist ) < MARCH_NEAR_ENOUGH ) {
-    vec3 normal = normalFunc( isect.pos );
+  if (abs(result.dist) < MARCH_NEAR_ENOUGH) {
+    vec3 normal = normalFunc(isect.pos);
     vec2 uv = result.uv;
 
-    fragColor = vec4( 0.5 + 0.5 * normal, 1.0 );
+    fragColor = vec4(0.5 + 0.5 * normal, 1.0);
   } else {
-    fragColor = vec4( 0.0, 0.0, 0.0, 0.0 );
+    fragColor = vec4(0.0, 0.0, 0.0, 0.0);
   }
 }

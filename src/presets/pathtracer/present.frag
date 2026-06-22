@@ -13,17 +13,17 @@ out vec4 fragColor;
 
 void main() {
   vec2 uv = gl_FragCoord.xy / resolution.xy;
-  vec4 tex = texture( layerAccumulate, uv );
+  vec4 tex = texture(layerAccumulate, uv);
 
 #ifdef COMPARE
-  if ( mouse.x > uv.x ) {
-    fragColor = texture( samplerReference, uv );
+  if (mouse.x > uv.x) {
+    fragColor = texture(samplerReference, uv);
     return;
   }
 #endif // COMPARE
 
   vec3 color = tex.rgb / tex.a;
-  color = pow( color, vec3( 0.4545 ) );
+  color = pow(color, vec3(0.4545));
 
-  fragColor = vec4( color, 1 );
+  fragColor = vec4(color, 1);
 }

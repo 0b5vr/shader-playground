@@ -23,17 +23,17 @@ uniform vec2 resolution;
 uniform sampler2D sampler0;
 
 // == common =======================================================================================
-mat2 rotate2D( float t ) {
-  return mat2( cos( t ), -sin( t ), sin( t ), cos( t ) );
+mat2 rotate2D(float t) {
+  return mat2(cos(t), -sin(t), sin(t), cos(t));
 }
 
-bool isValidUv( vec2 uv ) {
+bool isValidUv(vec2 uv) {
   return 0.0 < uv.x && uv.x < 1.0 && 0.0 < uv.y && uv.y < 1.0;
 }
 
-float ditherThreshold( vec2 coord ) {
-  vec2 c = floor( mod( coord, 2.0 ) );
-  return c.x + 2.0 * mod( c.x + c.y, 2.0 );
+float ditherThreshold(vec2 coord) {
+  vec2 c = floor(mod(coord, 2.0));
+  return c.x + 2.0 * mod(c.x + c.y, 2.0);
 }
 
 // == camera =======================================================================================
@@ -45,11 +45,11 @@ struct Camera {
   float fov;
 };
 
-Camera newCamera( vec3 pos, vec3 dir ) {
+Camera newCamera(vec3 pos, vec3 dir) {
   Camera camera;
   camera.pos = pos;
   camera.dir = dir;
-  camera.up = vec3( 0.0, 1.0, 0.0 );
+  camera.up = vec3(0.0, 1.0, 0.0);
   camera.roll = 0.0;
   camera.fov = 0.5;
   return camera;
@@ -61,24 +61,24 @@ struct Ray {
   vec3 dir;
 };
 
-Ray newRay( vec3 ori, vec3 dir ) {
+Ray newRay(vec3 ori, vec3 dir) {
   Ray ray;
   ray.orig = ori;
   ray.dir = dir;
   return ray;
 }
 
-Ray rayFromCamera( Camera camera, vec2 p ) {
-  vec3 dirX = normalize( cross( camera.dir, camera.up ) );
-  vec3 dirY = cross( dirX, camera.dir );
-  vec2 pt = rotate2D( camera.roll ) * p;
+Ray rayFromCamera(Camera camera, vec2 p) {
+  vec3 dirX = normalize(cross(camera.dir, camera.up));
+  vec3 dirY = cross(dirX, camera.dir);
+  vec2 pt = rotate2D(camera.roll) * p;
   return newRay(
     camera.pos,
-    normalize( pt.x * dirX + pt.y * dirY + camera.dir / tan( camera.fov ) )
+    normalize(pt.x * dirX + pt.y * dirY + camera.dir / tan(camera.fov))
   );
 }
 
-vec3 getRayPosition( Ray ray, float len ) {
+vec3 getRayPosition(Ray ray, float len) {
   return ray.orig + ray.dir * len;
 }
 
@@ -89,11 +89,11 @@ struct Intersection {
   vec3 pos;
 };
 
-Intersection newIntersection( Ray ray, float len ) {
+Intersection newIntersection(Ray ray, float len) {
   Intersection isect;
   isect.ray = ray;
   isect.len = len;
-  isect.pos = getRayPosition( ray, len );
+  isect.pos = getRayPosition(ray, len);
   return isect;
 }
 
@@ -106,103 +106,103 @@ struct MarchResult {
 };
 
 // == distFuncs ====================================================================================
-MarchResult distFunc( vec3 p ) {
+MarchResult distFunc(vec3 p) {
   MarchResult result;
 
   vec3 pt = p;
-  pt.zx = rotate2D( PI * time * 2.0 ) * pt.zx;
-  pt.yz = rotate2D( -0.5 ) * pt.yz;
+  pt.zx = rotate2D(PI * time * 2.0) * pt.zx;
+  pt.yz = rotate2D(-0.5) * pt.yz;
 
-  vec2 uv = saturate( 0.5 * pt.xy + 0.5 );
-  float tex = texture( sampler0, uv ).x;
-  result.charDist = ( 0.5 - tex );
+  vec2 uv = saturate(0.5 * pt.xy + 0.5);
+  float tex = texture(sampler0, uv).x;
+  result.charDist = (0.5 - tex);
 
   result.uv = uv;
-  result.dist = length( p ) - 8.8;
+  result.dist = length(p) - 8.8;
   result.dist = max(
     result.dist,
-    result.charDist - 0.02 + 0.5 * clamp( abs( pt.z ), 0.0, 0.04 )
+    result.charDist - 0.02 + 0.5 * clamp(abs(pt.z), 0.0, 0.04)
   );
   result.dist = max(
     result.dist,
-    abs( pt.z ) - 0.04 + 0.4 * result.charDist
+    abs(pt.z) - 0.04 + 0.4 * result.charDist
   );
 
-  result.glow = abs( result.dist ) * exp( -25.0 * abs( result.dist ) );
+  result.glow = abs(result.dist) * exp(-25.0 * abs(result.dist));
 
   return result;
 }
 
-vec3 normalFunc( vec3 p, float dd ) {
-  vec2 d = vec2( 0.0, dd );
-  return normalize( vec3(
-    distFunc( p + d.yxx ).dist - distFunc( p - d.yxx ).dist,
-    distFunc( p + d.xyx ).dist - distFunc( p - d.xyx ).dist,
-    distFunc( p + d.xxy ).dist - distFunc( p - d.xxy ).dist
-  ) );
+vec3 normalFunc(vec3 p, float dd) {
+  vec2 d = vec2(0.0, dd);
+  return normalize(vec3(
+    distFunc(p + d.yxx).dist - distFunc(p - d.yxx).dist,
+    distFunc(p + d.xyx).dist - distFunc(p - d.xyx).dist,
+    distFunc(p + d.xxy).dist - distFunc(p - d.xxy).dist
+  ));
 }
 
-vec3 normalFunc( vec3 p ) {
-  return normalFunc( p, MARCH_EPSILON );
+vec3 normalFunc(vec3 p) {
+  return normalFunc(p, MARCH_EPSILON);
 }
 
 // == main procedure ===============================================================================
 void main() {
-  vec2 p = ( vUv * resolution * 2.0 - resolution ) / resolution.x;
+  vec2 p = (vUv * resolution * 2.0 - resolution) / resolution.x;
   Camera camera = newCamera(
-    vec3( 0.0, 0.0, 1.0 ),
-    vec3( 0.0, 0.0, -1.0 )
+    vec3(0.0, 0.0, 1.0),
+    vec3(0.0, 0.0, -1.0)
   );
   camera.fov = 1.0;
-  Ray ray = rayFromCamera( camera, p );
+  Ray ray = rayFromCamera(camera, p);
 
   Intersection isect;
   float rayLen = MARCH_NEAR_ENOUGH;
-  vec3 rayPos = getRayPosition( ray, rayLen );
+  vec3 rayPos = getRayPosition(ray, rayLen);
   MarchResult result;
   float glow = 0.0;
 
-  for ( int i = 0; i < MARCH_ITER; i ++ ) {
-    result = distFunc( rayPos );
+  for (int i = 0; i < MARCH_ITER; i ++) {
+    result = distFunc(rayPos);
     glow += result.glow;
-    if ( abs( result.dist ) < MARCH_WAY_NEAR ) { break; }
+    if (abs(result.dist) < MARCH_WAY_NEAR) { break; }
     rayLen += result.dist * MARCH_MULP;
-    if ( MARCH_FAR < rayLen ) { break; }
-    rayPos = getRayPosition( ray, rayLen );
+    if (MARCH_FAR < rayLen) { break; }
+    rayPos = getRayPosition(ray, rayLen);
   }
 
-  vec3 color = vec3( 0.0 );
+  vec3 color = vec3(0.0);
 
-  vec3 baseColor = vec3( 100.0, 80.0 + 40.0 * cos( time * PI * 20.0 ), 5.0 );
+  vec3 baseColor = vec3(100.0, 80.0 + 40.0 * cos(time * PI * 20.0), 5.0);
 
-  if ( abs( result.dist ) < MARCH_NEAR_ENOUGH ) {
-    vec3 normal = normalFunc( rayPos );
+  if (abs(result.dist) < MARCH_NEAR_ENOUGH) {
+    vec3 normal = normalFunc(rayPos);
 
     vec2 uv = result.uv;
-    float phase = 20.0 * ( uv.y - 0.51 );
+    float phase = 20.0 * (uv.y - 0.51);
     vec3 gold = phase < 0.0
-      ? baseColor * exp( -6.0 * ( phase + 1.0 ) )
-      : baseColor * exp( -6.0 * phase );
-    vec3 dif = vec3( 0.2 + 0.8 * saturate( normal.z ) );
+      ? baseColor * exp(-6.0 * (phase + 1.0))
+      : baseColor * exp(-6.0 * phase);
+    vec3 dif = vec3(0.2 + 0.8 * saturate(normal.z));
     dif *= mix(
-      vec3( 0.1, 0.1, 0.1 ),
+      vec3(0.1, 0.1, 0.1),
       gold,
-      linearstep( 0.0, -0.001, result.charDist )
+      linearstep(0.0, -0.001, result.charDist)
     );
-    float spe = pow( saturate( normal.z ), 50.0 );
+    float spe = pow(saturate(normal.z), 50.0);
 
-    fragColor = vec4( dif + spe, 1.0 );
+    fragColor = vec4(dif + spe, 1.0);
   } else {
     float g = glow * 0.1;
-    vec3 color = max( g, 0.01 ) * 1.0 * baseColor;
-    float a = pow( min( g, 0.01 ) * 100.0, 1.0 );
-    a += 0.25 * ditherThreshold( gl_FragCoord.xy );
-    a += 0.0625 * ditherThreshold( gl_FragCoord.xy * 0.5 );
+    vec3 color = max(g, 0.01) * 1.0 * baseColor;
+    float a = pow(min(g, 0.01) * 100.0, 1.0);
+    a += 0.25 * ditherThreshold(gl_FragCoord.xy);
+    a += 0.0625 * ditherThreshold(gl_FragCoord.xy * 0.5);
 
-    if ( 1.0 <= a ) {
-      fragColor = vec4( color, 1.0 );
+    if (1.0 <= a) {
+      fragColor = vec4(color, 1.0);
     } else {
-      fragColor = vec4( 0.0, 0.0, 0.0, 0.0 );
+      fragColor = vec4(0.0, 0.0, 0.0, 0.0);
     }
   }
 }

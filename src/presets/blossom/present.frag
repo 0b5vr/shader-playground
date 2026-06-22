@@ -25,7 +25,7 @@ out vec4 fragColor;
 
 void main() {
   // readback the buffer
-  vec4 tex = texture( accumulatorTex, gl_FragCoord.xy / iResolution.xy );
+  vec4 tex = texture(accumulatorTex, gl_FragCoord.xy / iResolution.xy);
 
   // divide accumulated color by the sample count
   vec3 color = tex.rgb / tex.a;
@@ -36,5 +36,5 @@ void main() {
   //color = smoothstep(0.,1.,color.ggg);
 
   // present for display
-  fragColor = vec4( color, 1 );
+  fragColor = vec4(color, 1);
 }

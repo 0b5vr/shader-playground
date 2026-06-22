@@ -18,31 +18,31 @@ uniform sampler2D sampler0;
 #define PI 3.14159265
 #define saturate(i) clamp(i,0.,1.)
 
-float gray( vec3 rgb ) {
+float gray(vec3 rgb) {
   return 0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b;
 }
 
 void main() {
-  float len = length( vUv - ZOOM_CENTER );
+  float len = length(vUv - ZOOM_CENTER);
 
-  vec4 tex = vec4( 0.0 );
+  vec4 tex = vec4(0.0);
 
-  for ( int i = 0; i < ZOOM_ITER; i ++ ) {
-    float fi = ( float( i ) + 0.5 ) / float( ZOOM_ITER );
+  for (int i = 0; i < ZOOM_ITER; i ++) {
+    float fi = (float(i) + 0.5) / float(ZOOM_ITER);
     vec3 blurA = vec3(
-      1.0 - 2.0 * abs( 1.0 / 2.0 - fi )
+      1.0 - 2.0 * abs(1.0 / 2.0 - fi)
     ) * 2.0;
-    vec3 blurB = saturate( vec3(
-      1.0 - 4.0 * abs( 1.0 / 4.0 - fi ),
-      1.0 - 4.0 * abs( 2.0 / 4.0 - fi ),
-      1.0 - 4.0 * abs( 3.0 / 4.0 - fi )
-    ) ) * 4.0;
+    vec3 blurB = saturate(vec3(
+      1.0 - 4.0 * abs(1.0 / 4.0 - fi),
+      1.0 - 4.0 * abs(2.0 / 4.0 - fi),
+      1.0 - 4.0 * abs(3.0 / 4.0 - fi)
+    )) * 4.0;
     vec3 blur = vec3(
-      mix( blurA, blurB, CHROMA_MIX ) / float( ZOOM_ITER )
+      mix(blurA, blurB, CHROMA_MIX) / float(ZOOM_ITER)
     );
-    float scaleAmp = ( ZOOM_OUTSIDE_AMP * len + ZOOM_AMP ) * fi + ZOOM_OUTSIDE_OFFSET * len;
-    vec2 uvt = ( 1.0 - scaleAmp ) * ( vUv - ZOOM_CENTER ) + ZOOM_CENTER;
-    tex += vec4( blur, gray( blur ) ) * texture( sampler0, uvt );
+    float scaleAmp = (ZOOM_OUTSIDE_AMP * len + ZOOM_AMP) * fi + ZOOM_OUTSIDE_OFFSET * len;
+    vec2 uvt = (1.0 - scaleAmp) * (vUv - ZOOM_CENTER) + ZOOM_CENTER;
+    tex += vec4(blur, gray(blur)) * texture(sampler0, uvt);
   }
 
   fragColor = tex;

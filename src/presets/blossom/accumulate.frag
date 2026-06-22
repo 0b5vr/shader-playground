@@ -15,9 +15,9 @@ void main() {
   vec2 uv = gl_FragCoord.xy / resolution;
 
   // accumulate using backbuffer
-  fragColor = texture( layerDraw, uv );
+  fragColor = texture(layerDraw, uv);
 
-  if ( frame > 1 ) {
-    fragColor += texture( layerAccumulate, uv );
+  if (frame > 1) {
+    fragColor += texture(layerAccumulate, uv);
   }
 }
