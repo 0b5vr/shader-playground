@@ -4,7 +4,7 @@ import { GPUTimer } from './utils/GPUTimer';
 import JSZip from 'jszip';
 import { MouseHandler } from './MouseHandler';
 import { ShaderManagerLayer } from './ShaderManagerLayer';
-import { ShaderManagerPreset } from './ShaderManagerPreset';
+import type { ShaderManagerPreset } from './ShaderManagerPreset';
 import { applyMixins } from './utils/applyMixins';
 
 export class ShaderManager {

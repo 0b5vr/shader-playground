@@ -1,4 +1,4 @@
-import { ShaderManagerPreset } from '../../ShaderManagerPreset';
+import type { ShaderManagerPreset } from '../../ShaderManagerPreset';
 import fragAccumulate from './accumulate.frag?raw';
 import fragDraw from './draw.frag?raw';
 import fragPresent from './present.frag?raw';

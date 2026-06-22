@@ -1,4 +1,4 @@
-import { ShaderManagerTextureFilter, ShaderManagerTextureWrap } from './ShaderManagerTexture';
+import type { ShaderManagerTextureFilter, ShaderManagerTextureWrap } from './ShaderManagerTexture';
 
 export interface ShaderManagerPreset {
   width: number;

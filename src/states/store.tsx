@@ -1,6 +1,7 @@
 import * as ShaderManager from './ShaderManager';
 import * as Workspace from './Workspace';
-import { Dispatch, Store, combineReducers, createStore as createReduxStore } from 'redux';
+import { combineReducers, createStore as createReduxStore } from 'redux';
+import type { Dispatch, Store } from 'redux';
 import { shallowEqual, useDispatch as useReduxDispatch, useSelector as useReduxSelector } from 'react-redux';
 
 // == state ========================================================================================

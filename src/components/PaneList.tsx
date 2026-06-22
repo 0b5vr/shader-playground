@@ -23,7 +23,7 @@ const PaneList: React.FC = () => {
   ] );
 
   const handleClick = useCallback(
-    ( event: React.MouseEvent, paneKey: string ) => {
+    ( _event: React.MouseEvent, paneKey: string ) => {
       const newOrder = order.concat();
       newOrder.splice( order.indexOf( paneKey ), 1 );
       newOrder.push( paneKey );

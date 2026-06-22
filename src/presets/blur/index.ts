@@ -1,4 +1,4 @@
-import { ShaderManagerPreset } from '../../ShaderManagerPreset';
+import type { ShaderManagerPreset } from '../../ShaderManagerPreset';
 import fragBlurH from './blur-h.frag?raw';
 import fragBlurV from './blur-v.frag?raw';
 import fragDry from './dry.frag?raw';

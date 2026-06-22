@@ -1,4 +1,4 @@
-import { ShaderManagerPreset } from '../../ShaderManagerPreset';
+import type { ShaderManagerPreset } from '../../ShaderManagerPreset';
 import fragMain from './main.frag?raw';
 import imgRandom from '../../images/-rgba256.png';
 import imgWeAreBack from '../../images/we-are-back.png';

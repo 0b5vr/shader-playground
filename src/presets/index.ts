@@ -1,4 +1,4 @@
-import { ShaderManagerPreset } from '../ShaderManagerPreset';
+import type { ShaderManagerPreset } from '../ShaderManagerPreset';
 import analysPost from './analys-post';
 import blossom from './blossom';
 import blur from './blur';

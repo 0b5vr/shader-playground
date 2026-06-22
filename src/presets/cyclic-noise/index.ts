@@ -1,4 +1,4 @@
-import { ShaderManagerPreset } from '../../ShaderManagerPreset';
+import type { ShaderManagerPreset } from '../../ShaderManagerPreset';
 import fragMain from './main.frag?raw';
 
 const preset: ShaderManagerPreset = {

@@ -1,5 +1,5 @@
-import { ShaderManagerTextureFilter, ShaderManagerTextureWrap } from '../ShaderManagerTexture';
-import { Reducer } from 'redux';
+import type { ShaderManagerTextureFilter, ShaderManagerTextureWrap } from '../ShaderManagerTexture';
+import type { Reducer } from 'redux';
 import { produce } from 'immer';
 
 // == state ========================================================================================

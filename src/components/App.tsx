@@ -1,4 +1,5 @@
-import { Action, State, useSelector } from '../states/store';
+import { useSelector } from '../states/store';
+import type { Action, State } from '../states/store';
 import styled, { createGlobalStyle } from 'styled-components';
 import { Colors } from '../constants/Colors';
 import { EditorSeparator } from './EditorSeparator';
@@ -8,7 +9,7 @@ import { PaneList } from './PaneList';
 import { Provider } from 'react-redux';
 import React from 'react';
 import { ShaderManagerStateListener } from './ShaderManagerStateListener';
-import { Store } from 'redux';
+import type { Store } from 'redux';
 import { Workspace } from './Workspace';
 
 // == styles =======================================================================================

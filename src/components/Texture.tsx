@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { ShaderManagerTextureFilter, ShaderManagerTextureWrap } from '../ShaderManagerTexture';
+import type { ShaderManagerTextureFilter, ShaderManagerTextureWrap } from '../ShaderManagerTexture';
 import { Colors } from '../constants/Colors';
 import { Metrics } from '../constants/Metrics';
 import { SHADERMAN } from '../ShaderManager';

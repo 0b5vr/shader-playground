@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { Colors } from '../constants/Colors';
 import { Metrics } from '../constants/Metrics';
 import { SHADERMAN } from '../ShaderManager';
-import { ShaderManagerPreset } from '../ShaderManagerPreset';
+import type { ShaderManagerPreset } from '../ShaderManagerPreset';
 import { presets } from '../presets';
 import styled from 'styled-components';
 

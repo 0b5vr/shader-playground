@@ -71,7 +71,7 @@ export const Workspace: React.FC<Props> = ( { className, style } ) => {
   const handleMouseDown = useCallback( ( event: React.MouseEvent ): void => {
     if ( event.button === 1 ) {
       registerMouseEvent(
-        ( event, movementSum ) => {
+        ( _event, movementSum ) => {
           const multiplier = 1.0 / window.devicePixelRatio / view.zoom;
           dispatch( {
             type: 'Workspace/MoveView',

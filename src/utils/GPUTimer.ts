@@ -1,4 +1,4 @@
-import { Pool } from '../utils/Pool';
+import { Pool } from './Pool';
 
 export interface GPUTimerOptions {
   queryPoolSize?: number;
