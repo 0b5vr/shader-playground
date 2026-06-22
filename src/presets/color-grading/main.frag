@@ -1,3 +1,5 @@
+#version 300 es
+
 precision highp float;
 
 const vec4 LIFT = vec4( 0.02, -0.01, 0.09, 0.0 );
@@ -6,7 +8,8 @@ const vec4 GAIN = vec4( 1.06, 0.96, 1.10, 1.0 );
 
 const vec3 LUMA = vec3( 0.2126, 0.7152, 0.0722 );
 
-varying vec2 vUv;
+in vec2 vUv;
+out vec4 fragColor;
 uniform sampler2D sampler0;
 
 vec3 liftGammaGain( vec3 rgb, vec4 lift, vec4 gamma, vec4 gain ) {
@@ -34,8 +37,8 @@ vec3 liftGammaGain( vec3 rgb, vec4 lift, vec4 gamma, vec4 gain ) {
 
 void main() {
   vec2 uv = vUv;
-  vec4 tex = texture2D( sampler0, uv );
+  vec4 tex = texture( sampler0, uv );
 
   vec3 col = liftGammaGain( tex.rgb, LIFT, GAMMA, GAIN );
-  gl_FragColor = vec4( col, 1.0 );
+  fragColor = vec4( col, 1.0 );
 }

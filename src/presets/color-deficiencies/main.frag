@@ -1,3 +1,5 @@
+#version 300 es
+
 // #define PROTANOPIA
 // #define DEUTERANOPIA
 // #define TRITANOPIA
@@ -12,12 +14,13 @@
 #define VEC_ACHROMATOPSIA vec3( 0.15537, 0.75792, 0.08670 )
 precision highp float;
 
-varying vec2 vUv;
+in vec2 vUv;
+out vec4 fragColor;
 
 uniform sampler2D sampler0;
 
 void main() {
-  vec3 tex = texture2D( sampler0, vUv ).rgb;
+  vec3 tex = texture( sampler0, vUv ).rgb;
 
   vec3 col = pow( tex, vec3( 2.2 ) );
 
@@ -37,5 +40,5 @@ void main() {
   col = mix( col, vec3( dot( VEC_ACHROMATOPSIA, col ) ), BLEND );
 #endif
 
-  gl_FragColor = vec4( pow( col, vec3( 0.4545 ) ), 1.0 );
+  fragColor = vec4( pow( col, vec3( 0.4545 ) ), 1.0 );
 }

@@ -1,3 +1,5 @@
+#version 300 es
+
 #define MARCH_ITER 128
 #define MARCH_EPSILON 1E-2
 #define MARCH_NEAR_ENOUGH 1E-2
@@ -14,7 +16,8 @@
 precision highp float;
 
 // == variables ====================================================================================
-varying vec2 vUv;
+in vec2 vUv;
+out vec4 fragColor;
 uniform float time;
 uniform vec2 resolution;
 uniform sampler2D sampler0;
@@ -153,8 +156,8 @@ void main() {
     vec3 normal = normalFunc( isect.pos );
     vec2 uv = result.uv;
 
-    gl_FragColor = vec4( 0.5 + 0.5 * normal, 1.0 );
+    fragColor = vec4( 0.5 + 0.5 * normal, 1.0 );
   } else {
-    gl_FragColor = vec4( 0.0, 0.0, 0.0, 0.0 );
+    fragColor = vec4( 0.0, 0.0, 0.0, 0.0 );
   }
 }

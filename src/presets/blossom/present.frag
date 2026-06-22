@@ -20,7 +20,6 @@ out vec4 fragColor;
 
 #define iResolution vec4(resolution,resolution/resolution.yx)
 #define accumulatorTex layerAccumulate
-#define gl_FragColor fragColor
 
 // == your code goes below =========================================================================
 
@@ -37,5 +36,5 @@ void main() {
   //color = smoothstep(0.,1.,color.ggg);
 
   // present for display
-  gl_FragColor = vec4( color, 1 );
+  fragColor = vec4( color, 1 );
 }

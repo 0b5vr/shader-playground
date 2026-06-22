@@ -1,3 +1,5 @@
+#version 300 es
+
 #define DIRECTION vec2(0.0, 1.0)
 #define SIGMA 10.0
 // #define REPEAT
@@ -8,7 +10,8 @@ precision highp float;
 
 const float PI = 3.14159265;
 
-varying vec2 vUv;
+in vec2 vUv;
+out vec4 fragColor;
 uniform vec2 resolution;
 uniform sampler2D SAMPLER;
 
@@ -32,8 +35,8 @@ void main() {
     uvt = clamp( uvt, 0.0, 1.0 );
 #endif
     float weight = gaussian( float( i ) );
-    sum += weight * vec4( texture2D( SAMPLER, uvt ).rgb, 1.0 );
+    sum += weight * vec4( texture( SAMPLER, uvt ).rgb, 1.0 );
   }
   
-  gl_FragColor = vec4( sum.rgb / sum.a, 1.0 );
+  fragColor = vec4( sum.rgb / sum.a, 1.0 );
 }

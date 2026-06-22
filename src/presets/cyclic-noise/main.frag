@@ -1,6 +1,9 @@
+#version 300 es
+
 precision highp float;
 
-varying vec2 vUv;
+in vec2 vUv;
+out vec4 fragColor;
 uniform float time;
 
 mat3 orthBasis( vec3 z ) {
@@ -36,5 +39,5 @@ void main() {
 
   vec3 col = 0.5 + 0.5 * noise;
 
-  gl_FragColor = vec4( col, 1.0 );
+  fragColor = vec4( col, 1.0 );
 }

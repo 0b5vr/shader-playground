@@ -1,3 +1,5 @@
+#version 300 es
+
 #define MARCH_ITER 128
 #define MARCH_EPSILON 1E-2
 #define MARCH_NEAR_ENOUGH 1E-2
@@ -14,7 +16,8 @@
 precision highp float;
 
 // == variables ====================================================================================
-varying vec2 vUv;
+in vec2 vUv;
+out vec4 fragColor;
 uniform float time;
 uniform vec2 resolution;
 uniform sampler2D sampler0;
@@ -111,7 +114,7 @@ MarchResult distFunc( vec3 p ) {
   pt.yz = rotate2D( -0.5 ) * pt.yz;
 
   vec2 uv = saturate( 0.5 * pt.xy + 0.5 );
-  float tex = texture2D( sampler0, uv ).x;
+  float tex = texture( sampler0, uv ).x;
   result.charDist = ( 0.5 - tex );
 
   result.uv = uv;
@@ -188,7 +191,7 @@ void main() {
     );
     float spe = pow( saturate( normal.z ), 50.0 );
 
-    gl_FragColor = vec4( dif + spe, 1.0 );
+    fragColor = vec4( dif + spe, 1.0 );
   } else {
     float g = glow * 0.1;
     vec3 color = max( g, 0.01 ) * 1.0 * baseColor;
@@ -197,9 +200,9 @@ void main() {
     a += 0.0625 * ditherThreshold( gl_FragCoord.xy * 0.5 );
 
     if ( 1.0 <= a ) {
-      gl_FragColor = vec4( color, 1.0 );
+      fragColor = vec4( color, 1.0 );
     } else {
-      gl_FragColor = vec4( 0.0, 0.0, 0.0, 0.0 );
+      fragColor = vec4( 0.0, 0.0, 0.0, 0.0 );
     }
   }
 }

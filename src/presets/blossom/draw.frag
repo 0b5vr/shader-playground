@@ -19,7 +19,6 @@ out vec4 fragColor;
 
 #define iFrame frame
 #define iResolution vec4(resolution,resolution/resolution.yx)
-#define gl_FragColor fragColor
 
 // == your code goes below =========================================================================
 

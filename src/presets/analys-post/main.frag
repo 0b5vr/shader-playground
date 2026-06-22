@@ -1,3 +1,5 @@
+#version 300 es
+
 #define AMP 0.1
 #define SEED time
 
@@ -6,7 +8,8 @@
 
 precision highp float;
 
-varying vec2 vUv;
+in vec2 vUv;
+out vec4 fragColor;
 uniform sampler2D sampler0;
 uniform sampler2D samplerRandom;
 uniform float time;
@@ -24,14 +27,14 @@ vec2 doDeform( vec2 uv ) {
   float p = 1.0;
   for ( int i = 0; i < 4; i ++ ) {
     p *= 0.4;
-    float offsetX = texture2D(
+    float offsetX = texture(
       samplerRandom,
       lofi( uv.y, 0.2 * p + 0.1 * SEED ) * vec2( 0.67, 0.83 )
     ).x;
     uv.x += offsetX;
     vec2 v = lofi( uv, vec2( 1.0, 0.2 ) * p );
     uv.y -= offsetX;
-    vec4 tex = texture2D( samplerRandom, fract( v + 0.1 * SEED ) );
+    vec4 tex = texture( samplerRandom, fract( v + 0.1 * SEED ) );
     sum += mix( 1.0 - AMP, 1.0, p ) < tex.z ? ( tex.xy - 0.5 ) * p : vec2( 0.0 );
   }
   return sum;
@@ -41,9 +44,9 @@ void main() {
   vec2 uv = vUv;
   vec2 deform = doDeform( uv );
   vec4 tex = vec4( 0.0 );
-  tex.ra += texture2D( sampler0, fract( uv + 0.6 * deform ) ).ra;
-  tex.ga += texture2D( sampler0, fract( uv + 0.8 * deform ) ).ga;
-  tex.ba += texture2D( sampler0, fract( uv + 1.0 * deform ) ).ba;
+  tex.ra += texture( sampler0, fract( uv + 0.6 * deform ) ).ra;
+  tex.ga += texture( sampler0, fract( uv + 0.8 * deform ) ).ga;
+  tex.ba += texture( sampler0, fract( uv + 1.0 * deform ) ).ba;
   vec3 colYIQ = rgb2yiq( 1.0 * smoothstep( 0.0, 1.0, tex.rgb ) );
   colYIQ = colYIQ * mix(
     vec3( 1.1, 1.1, 0.8 ),
@@ -57,5 +60,5 @@ void main() {
 
   vec3 col = yiq2rgb( colYIQ );
 
-  gl_FragColor = vec4( col, saturate( tex.w ) );
+  fragColor = vec4( col, saturate( tex.w ) );
 }

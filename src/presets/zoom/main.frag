@@ -1,6 +1,9 @@
+#version 300 es
+
 precision highp float;
 
-varying vec2 vUv;
+in vec2 vUv;
+out vec4 fragColor;
 uniform float time;
 uniform sampler2D sampler0;
 
@@ -39,8 +42,8 @@ void main() {
     );
     float scaleAmp = ( ZOOM_OUTSIDE_AMP * len + ZOOM_AMP ) * fi + ZOOM_OUTSIDE_OFFSET * len;
     vec2 uvt = ( 1.0 - scaleAmp ) * ( vUv - ZOOM_CENTER ) + ZOOM_CENTER;
-    tex += vec4( blur, gray( blur ) ) * texture2D( sampler0, uvt );
+    tex += vec4( blur, gray( blur ) ) * texture( sampler0, uvt );
   }
 
-  gl_FragColor = tex;
+  fragColor = tex;
 }
